@@ -9,12 +9,16 @@ import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainer
 
 public class BattleShipServer {
 	public static void main(String[] args) {
-		Map<String, String> env = System.getenv();
-		for(String s : env.keySet()) {
-			System.out.println(s + ":" + env.get(s));
-		}
 		
-		Server server = new Server(Integer.valueOf(System.getenv("PORT")));
+		int port = 8080;
+		try {
+			port = Integer.valueOf(System.getenv("PORT"));
+		} catch(Exception e) {
+			System.out.println("No port specified, defaulting!");
+		}
+		System.out.println("Starting Server on Port " + port);
+		
+		Server server = new Server(port);
         ServerConnector connector = new ServerConnector(server);
         //connector.setPort(8080);
         server.addConnector(connector);

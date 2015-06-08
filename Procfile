@@ -1,1 +1,1 @@
-web:    java -cp target/classes:target/dependency/* BattleShipServer
+web:    java -cp target/classes:target/dependency/* main.BattleShipServer
