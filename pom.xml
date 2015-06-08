@@ -13,6 +13,33 @@
           <source>1.8</source>
           <target>1.8</target>
         </configuration>
+        <executions>
+                <execution>
+                    <phase>package</phase>
+                    <goals><goal>copy</goal></goals>
+                    <configuration>
+                        <artifactItems>
+                            <artifactItem>
+							    <groupId>org.eclipse.jetty</groupId>
+							    <artifactId>jetty-runner</artifactId>
+							    <version>9.2.2.v20140723</version>
+							    <destFileName>jetty-runner.jar</destFileName>
+							</artifactItem>
+                        </artifactItems>
+                    </configuration>
+                </execution>
+            </executions>
+      </plugin>
+      <plugin>
+	    <groupId>org.eclipse.jetty</groupId>
+	    <artifactId>jetty-maven-plugin</artifactId>
+	    <version>9.2.2.v20140723</version>
+	    <configuration>
+	        <scanIntervalSeconds>1</scanIntervalSeconds>
+	        <webApp>
+	            <contextPath>/websockets</contextPath>
+	        </webApp>
+	    </configuration>
       </plugin>
     </plugins>
   </build>
