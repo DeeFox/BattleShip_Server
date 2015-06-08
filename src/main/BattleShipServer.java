@@ -14,9 +14,9 @@ public class BattleShipServer {
 			System.out.println(s + ":" + env.get(s));
 		}
 		
-		Server server = new Server();
+		Server server = new Server(Integer.valueOf(System.getenv("PORT")));
         ServerConnector connector = new ServerConnector(server);
-        connector.setPort(8080);
+        //connector.setPort(8080);
         server.addConnector(connector);
         
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
