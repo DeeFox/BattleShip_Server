@@ -59,12 +59,12 @@ public class Lobby {
 		return status;
 	}
 	
-	private String getChallengedBy(Player player) {
-		String res = "";
+	private Player getChallengedBy(Player player) {
+		Player res = null;
 		for(Player p : challenges.keySet()) {
 			Player op = challenges.get(p);
 			if(player.equals(op)) {
-				res = p.getUsername();
+				res = p;
 			}
 		}
 		return res;
@@ -93,7 +93,9 @@ public class Lobby {
 	public void publishPlayerlist() {
 		for(Player p : players) {
 			JsonElement playerlistJson = getPlayerlistAsJson(p);
-			AnswerUtils.sendLobbyPlayerlist(p.getSession(), playerlistJson, getChallengedBy(p));
+			Player challengedBy = getChallengedBy(p);
+			String challenge = (challengedBy == null) ? "" : challengedBy.getUsername();
+			AnswerUtils.sendLobbyPlayerlist(p.getSession(), playerlistJson, challenge);
 		}
 	}
 	
@@ -113,6 +115,13 @@ public class Lobby {
 
 	public void challengePlayer(Player challengingPlayer,
 			Player challengedPlayer) {
+		// Start a game when 2 players challenged each other
+		Player thirdPlayer = challenges.get(challengedPlayer);
+		if(thirdPlayer != null && thirdPlayer == challengingPlayer) {
+			startGame(challengingPlayer, challengedPlayer);
+		}
+		
+		// Dont create Challenge when Players arent available
 		if(challenges.keySet().contains(challengingPlayer) ||
 			challenges.values().contains(challengedPlayer))
 			return;
@@ -136,5 +145,18 @@ public class Lobby {
 				publishPlayerlist();
 			}
 		}
+	}
+	
+	public void startGame(Player player1, Player player2) {
+		
+	}
+
+	public void acceptChallenge(Player challengedPlayer) {
+		Player challengingPlayer = getChallengedBy(challengedPlayer);
+		if(challengingPlayer == null)
+			return;
+		// TODO Error
+		
+		startGame(challengingPlayer, challengedPlayer);
 	}
 }

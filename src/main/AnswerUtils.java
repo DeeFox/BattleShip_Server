@@ -10,7 +10,7 @@ public class AnswerUtils {
 	
 	public static void sendError(Session sess, String err) {
 		JsonObject answer = new JsonObject();
-		answer.addProperty("messagetype", "error");
+		answer.addProperty("action", "error");
 		answer.addProperty("errmsg", err);
 		
 		sendMessageToSession(sess, answer.toString());

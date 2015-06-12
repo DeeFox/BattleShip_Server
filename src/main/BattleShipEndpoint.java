@@ -81,7 +81,8 @@ public class BattleShipEndpoint {
 			lobby.declineChallenge(challengedPlayer);
 			break;
 		case "acceptchallenge":
-			// TODO
+			challengedPlayer = lobby.getPlayerBySession(sess);
+			lobby.acceptChallenge(challengedPlayer);
 			break;
 		}
 	}
