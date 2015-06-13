@@ -17,6 +17,7 @@ public class Lobby {
 	private static Lobby instance;
 	
 	private HashSet<Player> players;
+	private HashSet<Player> allPlayers;
 	private HashMap<Player, Player> challenges;
 	
 	private HashMap<Player, Game> games;
@@ -30,7 +31,9 @@ public class Lobby {
 	
 	public Lobby() {
 		players = new HashSet<Player>();
+		allPlayers = new HashSet<Player>();
 		challenges = new HashMap<Player, Player>();
+		games = new HashMap<Player, Game>();
 	}
 	
 	private JsonElement getPlayerlistAsJson(Player player) {
@@ -74,7 +77,7 @@ public class Lobby {
 	
 	public Player getPlayerBySession(Session sess) {
 		Player res = null;
-		for(Player p : players) {
+		for(Player p : allPlayers) {
 			if(p.getSession() == sess) {
 				res = p;
 			}
@@ -84,7 +87,7 @@ public class Lobby {
 	
 	public Player getPlayerById(int id) {
 		Player res = null;
-		for(Player p : players) {
+		for(Player p : allPlayers) {
 			if(p.getId() == id) {
 				res = p;
 			}
@@ -103,15 +106,19 @@ public class Lobby {
 	
 	public void addPlayerToLobby(Player player) {
 		this.players.add(player);
+		this.allPlayers.add(player);
 		publishPlayerlist();
 	}
 	
-	public void removePlayerFromLobby(Session sess) {
+	public void removePlayerFromLobby(Session sess, boolean disconnected) {
 		// Remove Player from Playerlist
 		Player p = getPlayerBySession(sess);
 		if(p == null)
 			return;
 		players.remove(p);
+		
+		if(disconnected)
+			allPlayers.remove(p);
 		
 		// Remove all challenges with that player
 		HashMap<Player, Player> chals = new HashMap<Player, Player>(challenges);
@@ -165,6 +172,10 @@ public class Lobby {
 		games.put(player1, g);
 		games.put(player2, g);
 		
+		// Remove Players from Lobby Playerlist
+		removePlayerFromLobby(player1.getSession(), false);
+		removePlayerFromLobby(player2.getSession(), false);
+		
 		// Send Gamestart packets to players
 		AnswerUtils.sendGameStart(player1.getSession(), player2.getUsername());
 		AnswerUtils.sendGameStart(player2.getSession(), player1.getUsername());
@@ -177,5 +188,13 @@ public class Lobby {
 		// TODO Error
 		
 		startGame(challengingPlayer, challengedPlayer);
+	}
+
+	public Pair<Player, Game> getGameForSession(Session sess) {
+		Player p = getPlayerBySession(sess);
+		if(p == null)
+			return null;
+		Game g = games.get(p);
+		return new Pair<Player, Game>(p, g);
 	}
 }

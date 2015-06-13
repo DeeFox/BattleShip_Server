@@ -9,6 +9,8 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
+import model.Game;
+import model.Game.GameState;
 import model.Lobby;
 import model.Pair;
 import model.Player;
@@ -28,7 +30,7 @@ public class BattleShipEndpoint {
 	@OnClose
 	public void onClose(Session session, CloseReason reason) {
 		// In case the player was signed into the lobby, remove him
-		lobby.removePlayerFromLobby(session);
+		lobby.removePlayerFromLobby(session, true);
 	}
 
 	@OnOpen
@@ -37,7 +39,9 @@ public class BattleShipEndpoint {
 	}
 
 	@OnError
-	public void onError(Throwable cause) {
+	public void onError(Session session, Throwable cause) {
+		lobby.removePlayerFromLobby(session, true);
+		System.out.println("Socket error");
 		cause.printStackTrace(System.err);
 	}
 
@@ -55,6 +59,7 @@ public class BattleShipEndpoint {
 		Player challengedPlayer;
 		Player challengingPlayer;
 		Player player;
+		Game game;
 		switch (mode) {
 		// Lobby Functions
 		case "lobbysignin":
@@ -88,7 +93,18 @@ public class BattleShipEndpoint {
 			break;
 		// Game Functions
 		case "ship_placed":
+			fields = parseRequiredFields(sess, json, new String[] { "shiptype", "x", "y", "orientation" });
+			Pair<Player, Game> d = lobby.getGameForSession(sess);
+			if(d == null)
+				return;
 			
+			game = d.getVar2();
+			player = d.getVar1();
+			if(game.playerAllowedToPlaceShips(player)) {
+				game.placeShip(player, fields);
+			} else {
+				// TODO error
+			}
 			break;
 		}
 	}

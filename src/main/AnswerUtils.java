@@ -38,4 +38,13 @@ public class AnswerUtils {
 		
 		sendMessageToSession(sess, answer.toString());
 	}
+
+	public static void sendPlayerField(Session sess, JsonElement field, String fieldType) {
+		JsonObject answer = new JsonObject();
+		answer.addProperty("action", "field_update");
+		answer.addProperty("type", fieldType);
+		answer.add("data", field);
+		
+		sendMessageToSession(sess, answer.toString());
+	}
 }

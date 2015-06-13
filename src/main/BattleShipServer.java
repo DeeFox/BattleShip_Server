@@ -20,6 +20,7 @@ public class BattleShipServer {
 		
 		Server server = new Server(port);
         ServerConnector connector = new ServerConnector(server);
+        connector.setIdleTimeout(1000 * 600);
         //connector.setPort(8080);
         server.addConnector(connector);
         
