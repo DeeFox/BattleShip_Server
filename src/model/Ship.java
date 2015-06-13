@@ -1,37 +1,42 @@
 package model;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Arrays;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
 
 public class Ship {
+
 	public enum ShipType {
-		BATTLESHIP	("Battleship", 0, 5),
-		CRUISER		("Cruiser", 1, 4),
-		DESTROYER	("Destroyer", 2, 3),
-		SUBMARINE	("Submarine", 3, 2);
+		B1		("B1", "BattleShip", 1, 5),
+		C1		("C1", "Cruiser", 1, 4),
+		C2		("C2", "Cruiser", 2, 4),
+		D1		("D1", "Destroyer", 1, 3),
+		D2		("D2", "Destroyer", 2, 3),
+		D3		("D3", "Destroyer", 3, 3),
+		S1		("S1", "Submarine", 1, 2),
+		S2		("S2", "Submarine", 2, 2),
+		S3		("S3", "Submarine", 3, 2),
+		S4		("S4", "Submarine", 4, 2);
 		
+		public int size;
+		public final String ident;
 		public final String name;
-		public final int id;
-		public final int size;
 		
-		private static final Map<String, ShipType> shortNames;
-	    static
-	    {
-	    	shortNames = new HashMap<String, ShipType>();
-	    	shortNames.put("B", ShipType.BATTLESHIP);
-	    	shortNames.put("C", ShipType.CRUISER);
-	    	shortNames.put("D", ShipType.DESTROYER);
-	    	shortNames.put("S", ShipType.SUBMARINE);
-	    }
-		
-		private ShipType(String name, int id, int size) {
-			this.id = id;
-			this.name = name;
+		private ShipType(String ident, String name, int id, int size) {
 			this.size = size;
+			this.name = name;
+			this.ident = ident;
 		}
 		
-		public static ShipType getFromShort(String sh) {
-			return ShipType.shortNames.get(sh);
+		public static ShipType fromIdent(String ident) {
+			ShipType res = null;
+			for(ShipType st : ShipType.values()) {
+				if(st.ident.equals(ident))
+					res = st;
+			}
+			return res;
 		}
 	}
 	
@@ -47,47 +52,58 @@ public class Ship {
 			this.y = y;
 		}
 		
-		public char shortName() {
-			return (this.equals(Orientation.HORIZONTAL)) ? 'h' : 'v';
+		public static Orientation fromString(String o) {
+			return (o.equals("h")) ? Orientation.HORIZONTAL : Orientation.VERTICAL;
+		}
+		
+		public String shortName() {
+			return (this.equals(Orientation.HORIZONTAL)) ? "horizontal" : "vertical";
 		}
 	}
 	
-	private int posX;
-	private int posY;
-	private Orientation orientation;
 	private ShipType type;
-	private int hitCounter = 0;
-	
-	public Ship(ShipType type, int posX, int posY, Orientation orientation) {
+	private Point position;
+	private Orientation orientation;
+	private boolean[] hits;
+
+	public Ship(ShipType type, Point coordinates, Orientation orientation) {
 		this.type = type;
-		this.posX = posX;
-		this.posY = posY;
+		this.position = coordinates;
 		this.orientation = orientation;
-	}
-	
-	public void incrementHitCounter() {
-		this.hitCounter++;
-	}
-	
-	public boolean isDestroyed() {
-		return (this.hitCounter == this.type.size);
+		this.hits = new boolean[type.size];
 	}
 
-	public int getPosX() {
-		return posX;
-	}
-
-	public int getPosY() {
-		return posY;
+	public Point getPosition() {
+		return position;
 	}
 
 	public Orientation getOrientation() {
 		return orientation;
 	}
-
+	
 	public ShipType getType() {
 		return type;
 	}
+
+	public boolean isDestroyed() {
+		// TODO Auto-generated method stub
+		return false;
+	}
 	
-	
+	public JsonElement getAsJson(boolean forOwner) {
+		JsonArray hits = new JsonArray();
+		boolean[] boolHits = this.hits;
+		
+		if(!forOwner) {
+			boolHits = new boolean[this.type.size];
+			if(isDestroyed()) {
+				Arrays.fill(boolHits, true);
+			}
+		}
+		for(boolean h : boolHits) {
+			JsonPrimitive hit = new JsonPrimitive(h);
+			hits.add(hit);
+		}
+		return hits;
+	}
 }

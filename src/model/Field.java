@@ -1,25 +1,26 @@
 package model;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 
 import model.Ship.ShipType;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
 public class Field {
 	
 	private boolean[][] opponentShots;
-	private ArrayList<Ship> ships;
 	private Ship[][] fields;
 	
-	private int[] shipCountLimits;
+	private HashMap<ShipType, Ship> ships;
 	
 	public Field() {
-		this.shipCountLimits = new int[4];
-		this.shipCountLimits[0] = 1;
-		this.shipCountLimits[1] = 2;
-		this.shipCountLimits[2] = 3;
-		this.shipCountLimits[3] = 4;
-		
-		this.ships = new ArrayList<Ship>();
+		this.ships = new HashMap<ShipType, Ship>();
+		for(ShipType t : ShipType.values()) {
+			this.ships.put(t, null);
+		}
 		
 		this.fields = new Ship[10][10];
 		this.opponentShots = new boolean[10][10];
@@ -30,7 +31,7 @@ public class Field {
 		ShipType type = ship.getType();
 		
 		// Check if already all ships of this type were set
-		if(this.shipCountLimits[type.id] == 0)
+		if(this.ships.get(type) != null)
 			return false;
 		
 		// Check for collisions
@@ -38,21 +39,20 @@ public class Field {
 			return false;
 		
 		// Place ship
-		this.ships.add(ship);
+		this.ships.put(type, ship);
 		for(int i = 0; i < ship.getType().size; i++) {
-			int posX = ship.getPosX() + (ship.getOrientation().x * i);
-			int posY = ship.getPosY() + (ship.getOrientation().y * i);
+			int posX = ship.getPosition().getX() + (ship.getOrientation().x * i);
+			int posY = ship.getPosition().getY() + (ship.getOrientation().y * i);
 			this.fields[posX][posY] = ship;
 		}
 		
-		this.shipCountLimits[type.id]--;
 		return true;
 	}
 	
 	public boolean allShipsPlaced() {
 		boolean shipsLeft = false;
-		for(int i : this.shipCountLimits) {
-			if(i > 0)
+		for(ShipType s : this.ships.keySet()) {
+			if(this.ships.get(s) == null)
 				shipsLeft = true;
 		}
 		return !shipsLeft;
@@ -60,9 +60,12 @@ public class Field {
 	
 	public boolean allShipsDestroyed() {
 		boolean shipsLeft = false;
-		for(Ship ship : this.ships) {
-			if(!ship.isDestroyed())
-				shipsLeft = true;
+		for(ShipType s : this.ships.keySet()) {
+			Ship ship = this.ships.get(s);
+			if(ship != null) {
+				if(!ship.isDestroyed())
+					shipsLeft = true;
+			}
 		}
 		return !shipsLeft;
 	}
@@ -70,8 +73,8 @@ public class Field {
 	private boolean isSpaceOccupied(Ship ship) {
 		boolean isOccupied = false;
 		for(int i = 0; i < ship.getType().size; i++) {
-			int posX = ship.getPosX() + (ship.getOrientation().x * i);
-			int posY = ship.getPosY() + (ship.getOrientation().y * i);
+			int posX = ship.getPosition().getX() + (ship.getOrientation().x * i);
+			int posY = ship.getPosition().getY() + (ship.getOrientation().y * i);
 			if(posX < 0 || posX > 9 || posY < 0 || posY > 9) {
 				isOccupied = true;
 			} else {
@@ -91,7 +94,7 @@ public class Field {
 		
 		Ship dest = this.fields[p.getX()][p.getY()];
 		if(dest != null) {
-			dest.incrementHitCounter();
+			// TODO update hits boolarray
 			return dest;
 		}
 		return null;
@@ -120,5 +123,34 @@ public class Field {
 				return "O";
 			}
 		}
+	}
+	
+	// New Stuff
+	public JsonElement getFieldAsJson(boolean forOwner) {
+		JsonObject res = new JsonObject();
+		JsonArray field = new JsonArray();
+		for(int y = 0; y < 10; y++) {
+			JsonArray row = new JsonArray();
+			for(int x = 0; x < 10; x++) {
+				String fs = getFieldString(new Point(x, y));
+				if(!forOwner)
+					fs = (fs.equals("O")) ? "." : "O";
+				JsonPrimitive f = new JsonPrimitive(fs);
+				row.add(f);
+			}
+			field.add(row);
+		}
+		res.add("field", field);
+		
+		JsonObject ships = new JsonObject();
+		for(ShipType st : this.ships.keySet()) {
+			Ship sp = this.ships.get(st);
+			if(sp != null) {
+				ships.add(st.ident, sp.getAsJson(forOwner));
+			}
+		}
+		res.add("ships", ships);
+		
+		return res;
 	}
 }
