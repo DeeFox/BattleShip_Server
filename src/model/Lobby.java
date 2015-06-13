@@ -19,6 +19,8 @@ public class Lobby {
 	private HashSet<Player> players;
 	private HashMap<Player, Player> challenges;
 	
+	private HashMap<Player, Game> games;
+	
 	public static Lobby getInstance() {
 		if(instance == null)
 			instance = new Lobby();
@@ -105,11 +107,22 @@ public class Lobby {
 	}
 	
 	public void removePlayerFromLobby(Session sess) {
+		// Remove Player from Playerlist
 		Player p = getPlayerBySession(sess);
 		if(p == null)
 			return;
-
 		players.remove(p);
+		
+		// Remove all challenges with that player
+		HashMap<Player, Player> chals = new HashMap<Player, Player>(challenges);
+		for(Player pl : chals.keySet()) {
+			Player op = chals.get(pl);
+			if(p == pl || p == op) {
+				challenges.remove(pl);
+			}
+		}
+		
+		// Publish the updated list
 		publishPlayerlist();
 	}
 
@@ -148,7 +161,13 @@ public class Lobby {
 	}
 	
 	public void startGame(Player player1, Player player2) {
+		Game g = new Game(player1, player2);
+		games.put(player1, g);
+		games.put(player2, g);
 		
+		// Send Gamestart packets to players
+		AnswerUtils.sendGameStart(player1.getSession(), player2.getUsername());
+		AnswerUtils.sendGameStart(player2.getSession(), player1.getUsername());
 	}
 
 	public void acceptChallenge(Player challengedPlayer) {

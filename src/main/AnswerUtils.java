@@ -30,4 +30,12 @@ public class AnswerUtils {
 		Async as = sess.getAsyncRemote();
 		as.sendText(msg);
 	}
+
+	public static void sendGameStart(Session sess, String opName) {
+		JsonObject answer = new JsonObject();
+		answer.addProperty("action", "startgame");
+		answer.addProperty("opponent_name", opName);
+		
+		sendMessageToSession(sess, answer.toString());
+	}
 }

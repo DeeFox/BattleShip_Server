@@ -54,7 +54,9 @@ public class BattleShipEndpoint {
 		HashMap<String, String> fields;
 		Player challengedPlayer;
 		Player challengingPlayer;
+		Player player;
 		switch (mode) {
+		// Lobby Functions
 		case "lobbysignin":
 			fields = parseRequiredFields(sess, json, new String[] { "username" });
 			if(fields == null)
@@ -83,6 +85,10 @@ public class BattleShipEndpoint {
 		case "acceptchallenge":
 			challengedPlayer = lobby.getPlayerBySession(sess);
 			lobby.acceptChallenge(challengedPlayer);
+			break;
+		// Game Functions
+		case "ship_placed":
+			
 			break;
 		}
 	}
