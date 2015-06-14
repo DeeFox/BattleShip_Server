@@ -92,7 +92,7 @@ public class Ship {
 	public boolean isDestroyed() {
 		boolean destroyed = true;
 		for(boolean h : this.hits) {
-			if(h) {
+			if(!h) {
 				destroyed = false;
 			}
 		}
