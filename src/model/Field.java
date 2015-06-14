@@ -70,6 +70,31 @@ public class Field {
 		return !shipsLeft;
 	}
 	
+	public static boolean isValidPoint(Point p) {
+		return (p.getX() >= 0 && p.getX() < 10 && p.getY() >= 0 && p.getY() < 10);
+	}
+	
+	public boolean areAdjascentFieldsFree(Point p) {
+		Point[] pts = new Point[8];
+		pts[0] = new Point(p.getX(), p.getY() - 1);
+		pts[1] = new Point(p.getX() - 1, p.getY());
+		pts[2] = new Point(p.getX() + 1, p.getY());
+		pts[3] = new Point(p.getX(), p.getY() + 1);
+		
+		pts[4] = new Point(p.getX() - 1, p.getY() - 1);
+		pts[5] = new Point(p.getX() + 1, p.getY() - 1);
+		pts[6] = new Point(p.getX() + 1, p.getY() + 1);
+		pts[7] = new Point(p.getX() - 1, p.getY() + 1);
+		
+		for(Point pt : pts) {
+			if(isValidPoint(pt)) {
+				if(this.fields[pt.getX()][pt.getY()] != null)
+					return false;
+			}
+		}
+		return true;
+	}
+	
 	private boolean isSpaceOccupied(Ship ship) {
 		boolean isOccupied = false;
 		for(int i = 0; i < ship.getType().size; i++) {
@@ -78,8 +103,9 @@ public class Field {
 			if(posX < 0 || posX > 9 || posY < 0 || posY > 9) {
 				isOccupied = true;
 			} else {
-				if(this.fields[posX][posY] != null)
-					isOccupied = true;
+				if(this.fields[posX][posY] != null || 
+						!areAdjascentFieldsFree(new Point(posX, posY)))
+						isOccupied = true;
 			}
 		}
 		return isOccupied;
@@ -150,7 +176,7 @@ public class Field {
 				if(forOwner || sp.isDestroyed()) {
 					ship.addProperty("x", sp.getPosition().getX());
 					ship.addProperty("y", sp.getPosition().getY());
-					ship.addProperty("orientation", sp.getOrientation().shortName());
+					ship.addProperty("orientation", sp.getOrientation().ident());
 				}
 				JsonElement boolHits = sp.getAsJson(forOwner);
 				ship.add("hits", boolHits);

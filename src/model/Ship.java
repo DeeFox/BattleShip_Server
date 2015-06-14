@@ -59,6 +59,10 @@ public class Ship {
 		public String shortName() {
 			return (this.equals(Orientation.HORIZONTAL)) ? "horizontal" : "vertical";
 		}
+		
+		public String ident() {
+			return (this.equals(Orientation.HORIZONTAL)) ? "h" : "v";
+		}
 	}
 	
 	private ShipType type;
