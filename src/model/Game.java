@@ -178,7 +178,7 @@ public class Game {
 			AnswerUtils.sendError(player.getSession(), "Already fired here.");
 			return;
 		}
-		Ship target = pf.fire(coordinates);
+		pf.fire(coordinates);
 		
 		Player otherPlayer = getOtherPlayer(player);
 		sendPlayerFieldUpdate(otherPlayer, otherPlayer);

@@ -2,8 +2,6 @@ package main;
 import javax.websocket.RemoteEndpoint.Async;
 import javax.websocket.Session;
 
-import model.Player;
-
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 

@@ -10,7 +10,6 @@ import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
 import model.Game;
-import model.Game.GameState;
 import model.Lobby;
 import model.Pair;
 import model.Player;
