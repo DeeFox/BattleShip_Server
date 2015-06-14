@@ -179,7 +179,9 @@ public class Game {
 			AnswerUtils.sendError(player.getSession(), "Already fired here.");
 			return;
 		}
-		pf.fire(coordinates);
+		Ship target = pf.fire(coordinates);
+		
+		sendAttackLog(coordinates, target, player);
 		
 		sendPlayerFieldUpdate(otherPlayer, otherPlayer);
 		sendPlayerFieldUpdate(otherPlayer, player);
@@ -193,6 +195,22 @@ public class Game {
 		}
 	}
 	
+	private void sendAttackLog(Point p, Ship target, Player player) {
+		String msg = "";
+		msg = "Attacke auf " + p.toBSString() + ". ";
+		if(target == null) {
+			 msg += "Kein Treffer!";
+		} else {
+			if(target.isDestroyed()) {
+				msg += "Schiff versenkt!";
+			} else {
+				msg += "Schiff getroffen!";
+			}
+		}
+		AnswerUtils.sendLogMessage(player.getSession(), msg, player.getUsername());
+		AnswerUtils.sendLogMessage(getOtherPlayer(player).getSession(), msg, player.getUsername());
+	}
+
 	private void playerWon(Player player) {
 		state = GameState.GAME_OVER;
 		sendGameOver(player, true);

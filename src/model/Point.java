@@ -42,6 +42,10 @@ public class Point {
 		this.y = y;
 	}
 	
+	public String toBSString() {
+		return "" + Field.getCharForNumber(this.y+1) + "" + (this.x+1);
+	}
+	
 	public JsonElement asJsonElement() {
 		JsonArray pos = new JsonArray();
 		pos.add(new JsonPrimitive(this.x));

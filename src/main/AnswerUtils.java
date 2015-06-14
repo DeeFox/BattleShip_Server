@@ -73,4 +73,13 @@ public class AnswerUtils {
 		
 		sendMessageToSession(sess, answer.toString());
 	}
+	
+	public static void sendLogMessage(Session sess, String msg, String sender) {
+		JsonObject answer = new JsonObject();
+		answer.addProperty("action", "logmsg");
+		answer.addProperty("sender", sender);
+		answer.addProperty("message", msg);
+		
+		sendMessageToSession(sess, answer.toString());
+	}
 }

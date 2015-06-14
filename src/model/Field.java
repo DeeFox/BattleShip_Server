@@ -48,6 +48,10 @@ public class Field {
 		return true;
 	}
 	
+	public static String getCharForNumber(int i) {
+	    return i > 0 && i < 27 ? String.valueOf((char)(i + 'A' - 1)) : null;
+	}
+	
 	public boolean allShipsPlaced() {
 		boolean shipsLeft = false;
 		for(ShipType s : this.ships.keySet()) {
@@ -154,17 +158,25 @@ public class Field {
 	public JsonElement getFieldAsJson(boolean forOwner) {
 		JsonObject res = new JsonObject();
 		JsonArray hits = new JsonArray();
+		JsonArray missed = new JsonArray();
 		
 		for(int y = 0; y < 10; y++) {
 			for(int x = 0; x < 10; x++) {
 				if(opponentShots[x][y]) {
 					Point c = new Point(x, y);
 					JsonElement pos = c.asJsonElement();
-					hits.add(pos);
+					
+					Ship dest = this.fields[c.getX()][c.getY()];
+					if(dest != null) {
+						hits.add(pos);
+					} else {
+						missed.add(pos);
+					}
 				}
 			}
 		}
 		res.add("hits", hits);
+		res.add("missed", missed);
 		
 		JsonArray ships = new JsonArray();
 		for(ShipType st : this.ships.keySet()) {
