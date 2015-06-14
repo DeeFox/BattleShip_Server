@@ -187,7 +187,7 @@ public class Game {
 		if(pf.allShipsDestroyed()) {
 			playerWon(player);
 		} else {
-			nextPlayerTurn(otherPlayer);
+			nextPlayerTurn(player);
 			sendGameState(player);
 			sendGameState(otherPlayer);
 		}
