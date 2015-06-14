@@ -47,6 +47,7 @@ public class BattleShipEndpoint {
 
 	@OnMessage
 	public void onMessage(String message, Session sess) {
+		System.out.println(">> (" + sess.getId() + ") " + message);
 		Pair<JsonObject,String> parsed = parseMessage(message, sess);
 		
 		if(parsed == null)
@@ -59,6 +60,7 @@ public class BattleShipEndpoint {
 		Player challengedPlayer;
 		Player challengingPlayer;
 		Player player;
+		Pair<Player, Game> data;
 		Game game;
 		switch (mode) {
 		// Lobby Functions
@@ -94,18 +96,42 @@ public class BattleShipEndpoint {
 		// Game Functions
 		case "ship_placed":
 			fields = parseRequiredFields(sess, json, new String[] { "shiptype", "x", "y", "orientation" });
-			Pair<Player, Game> d = lobby.getGameForSession(sess);
-			if(d == null)
+			data = lobby.getGameForSession(sess);
+			if(data == null)
 				return;
 			
-			game = d.getVar2();
-			player = d.getVar1();
+			game = data.getVar2();
+			player = data.getVar1();
 			if(game.playerAllowedToPlaceShips(player)) {
 				game.placeShip(player, fields);
 			} else {
-				// TODO error
+				AnswerUtils.sendError(sess, "You are not in the right state to place ships.");
 			}
 			break;
+		case "attack":
+			fields = parseRequiredFields(sess, json, new String[] { "x", "y" });
+			data = lobby.getGameForSession(sess);
+			if(data == null)
+				return;
+			
+			game = data.getVar2();
+			player = data.getVar1();
+			if(game.playerAllowedToAttack(player)) {
+				game.attack(player, fields);
+			} else {
+				AnswerUtils.sendError(sess, "You are not in the right state to perform an attack.");
+			}
+			break;
+		case "send_chat":
+			fields = parseRequiredFields(sess, json, new String[] { "message" });
+			data = lobby.getGameForSession(sess);
+			if(data == null)
+				return;
+			
+			game = data.getVar2();
+			player = data.getVar1();
+			
+			game.sendChatMessage(player, fields);
 		}
 	}
 	

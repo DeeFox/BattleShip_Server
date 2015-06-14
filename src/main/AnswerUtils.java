@@ -2,6 +2,8 @@ package main;
 import javax.websocket.RemoteEndpoint.Async;
 import javax.websocket.Session;
 
+import model.Player;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -26,7 +28,7 @@ public class AnswerUtils {
 	}
 	
 	public static void sendMessageToSession(Session sess, String msg) {
-		System.out.println("Sending msg " + msg);
+		System.out.println("<< (" + sess.getId() + ") " + msg);
 		Async as = sess.getAsyncRemote();
 		as.sendText(msg);
 	}
@@ -44,6 +46,32 @@ public class AnswerUtils {
 		answer.addProperty("action", "field_update");
 		answer.addProperty("type", fieldType);
 		answer.add("data", field);
+		
+		sendMessageToSession(sess, answer.toString());
+	}
+
+	public static void sendGameState(Session sess, String state) {
+		JsonObject answer = new JsonObject();
+		answer.addProperty("action", "gamestate");
+		answer.addProperty("state", state);
+		
+		sendMessageToSession(sess, answer.toString());
+	}
+
+	public static void sendGameOver(Session sess, boolean won) {
+		String outcome = (won) ? "winner" : "loser";
+		
+		JsonObject answer = new JsonObject();
+		answer.addProperty("action", "gameover");
+		answer.addProperty("outcome", outcome);
+		
+		sendMessageToSession(sess, answer.toString());
+	}
+
+	public static void sendChatMessage(Session sess, String msg) {
+		JsonObject answer = new JsonObject();
+		answer.addProperty("action", "chatmsg");
+		answer.addProperty("message", msg);
 		
 		sendMessageToSession(sess, answer.toString());
 	}

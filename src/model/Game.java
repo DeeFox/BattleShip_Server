@@ -1,6 +1,7 @@
 package model;
 
 import java.util.HashMap;
+import java.util.Random;
 
 import javax.websocket.Session;
 
@@ -11,6 +12,11 @@ import model.Ship.ShipType;
 import com.google.gson.JsonElement;
 
 public class Game {
+	
+	private static Random rnd = new Random();
+	public static boolean getRandomBoolean() {
+		return rnd.nextBoolean();
+	}
 	
 	private Player player1;
 	private Player player2;
@@ -55,20 +61,20 @@ public class Game {
 		try {
 			coordinates = Point.fromStrings(fields.get("x"), fields.get("y"));
 		} catch(NumberFormatException e) {
-			// TODO error
+			AnswerUtils.sendError(player.getSession(), "Malformed Coordinates.");
 			return;
 		}
 		
 		String orient = fields.get("orientation");
 		if(!(orient.equals("h") || orient.equals("v"))) {
-			// TODO error
+			AnswerUtils.sendError(player.getSession(), "Malformed Orientation.");
 			return;
 		}
 		Orientation orientation = Orientation.fromString(orient);
 		
 		ShipType type = ShipType.fromIdent(fields.get("shiptype"));
 		if(type == null) {
-			// TODO error
+			AnswerUtils.sendError(player.getSession(), "Unknown ShipType.");
 			return;
 		}
 		
@@ -76,7 +82,7 @@ public class Game {
 		Field pf = getPlayerField(player);
 		boolean success = pf.placeShip(ship);
 		if(!success) {
-			// TODO error
+			AnswerUtils.sendError(player.getSession(), "Illegal ship placement attempt.");
 		} else {
 			// Send out field to user
 			
@@ -111,6 +117,109 @@ public class Game {
 	}
 	
 	public void playerFinishedPlacingShips(Player player) {
+		if(state.equals(GameState.BOTH_PLAYERS_PLACING_SHIPS)) {
+			if(isPlayer1(player)) {
+				state = GameState.PLAYER1_FINISHED_PLACING_SHIPS;
+			} else {
+				state = GameState.PLAYER2_FINISHED_PLACING_SHIPS;
+			}
+		} else {
+			diceOutBeginner();
+		}
+		sendGameState(player1);
+		sendGameState(player2);
+	}
+
+	private void sendGameState(Player player) {
+		String msg = "";
+		if( playerAllowedToAttack(player) ) {
+			msg = "your_turn";
+		}
+		if( (isPlayer1(player) && state.equals(GameState.PLAYER2_TURN)) ||
+			(!isPlayer1(player) && state.equals(GameState.PLAYER1_TURN)) ) {
+			msg = "opponent_turn";
+		}
+		if( (isPlayer1(player) && state.equals(GameState.PLAYER1_FINISHED_PLACING_SHIPS)) ||
+			(!isPlayer1(player) && state.equals(GameState.PLAYER2_FINISHED_PLACING_SHIPS)) ) {
+			msg = "opponent_placing_ships";
+		}
+		AnswerUtils.sendGameState(player.getSession(), msg);
+	}
+
+	private void diceOutBeginner() {
+		boolean player1Begins = Game.getRandomBoolean();
+		if(player1Begins) {
+			state = GameState.PLAYER1_TURN;
+		} else {
+			state = GameState.PLAYER2_TURN;
+		}
+	}
+
+	public boolean playerAllowedToAttack(Player player) {
+		if( (isPlayer1(player) && state.equals(GameState.PLAYER1_TURN)) ||
+			(!isPlayer1(player) && state.equals(GameState.PLAYER2_TURN)) ) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public void attack(Player player, HashMap<String, String> fields) {
+		Point coordinates = new Point();
+		try {
+			coordinates = Point.fromStrings(fields.get("x"), fields.get("y"));
+		} catch(NumberFormatException e) {
+			AnswerUtils.sendError(player.getSession(), "Malformed Coordinates.");
+			return;
+		}
 		
+		Field pf = getPlayerField(player);
+		if(pf.alreadyFiredHere(coordinates)) {
+			AnswerUtils.sendError(player.getSession(), "Already fired here.");
+			return;
+		}
+		Ship target = pf.fire(coordinates);
+		
+		Player otherPlayer = getOtherPlayer(player);
+		sendPlayerFieldUpdate(otherPlayer, otherPlayer);
+		sendPlayerFieldUpdate(otherPlayer, player);
+		
+		if(pf.allShipsDestroyed()) {
+			playerWon(otherPlayer);
+		} else {
+			nextPlayerTurn(player);
+			sendGameState(player);
+			sendGameState(otherPlayer);
+		}
+	}
+	
+	private void playerWon(Player player) {
+		state = GameState.GAME_OVER;
+		sendGameOver(player, true);
+		sendGameOver(getOtherPlayer(player), false);
+	}
+	
+	private void sendGameOver(Player player, boolean won) {
+		AnswerUtils.sendGameOver(player.getSession(), won);
+	}
+
+	private Player getOtherPlayer(Player player) {
+		return (isPlayer1(player)) ? player2 : player1;
+	}
+	
+	private void nextPlayerTurn(Player player) {
+		if(isPlayer1(player)) {
+			state = GameState.PLAYER2_TURN;
+		} else {
+			state = GameState.PLAYER1_TURN;
+		}
+	}
+
+	public void sendChatMessage(Player player, HashMap<String, String> fields) {
+		String msg = fields.get("message");
+		if(!(msg.length() > 0)) {
+			return;
+		}
+		AnswerUtils.sendChatMessage(getOtherPlayer(player).getSession(), msg);
 	}
 }
