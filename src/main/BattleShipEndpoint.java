@@ -34,14 +34,13 @@ public class BattleShipEndpoint {
 
 	@OnOpen
 	public void onConnect(Session session) {
-		System.out.println("Client connected: " + session);
+		System.out.println("!! Client connected: " + session.getId());
 	}
 
 	@OnError
 	public void onError(Session session, Throwable cause) {
 		lobby.removePlayerFromLobby(session, true);
-		System.out.println("Socket error");
-		cause.printStackTrace(System.err);
+		System.out.println("!! Socket error (" + cause.getMessage() + ")");
 	}
 
 	@OnMessage
@@ -156,14 +155,11 @@ public class BattleShipEndpoint {
 		JsonObject json = new JsonObject();
 		String mode = "";
 		try {
-			//JsonElement jelem = gson.fromJson(message, JsonElement.class);
-			//json = jelem.getAsJsonObject();
 			json = gson.fromJson(message, JsonObject.class);
 			JsonElement jelemMode = json.get("action");
 			mode = jelemMode.getAsString();
 		} catch(Exception e) {
-			AnswerUtils.sendError(sess, "Malformed JSON input (" + e.getLocalizedMessage() + ")");
-			e.printStackTrace();
+			AnswerUtils.sendError(sess, "Malformed JSON input (" + e.getMessage() + ")");
 			return null;
 		}
 		return new Pair<JsonObject,String>(json, mode);
