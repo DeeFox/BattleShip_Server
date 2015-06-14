@@ -120,7 +120,7 @@ public class Field {
 		
 		Ship dest = this.fields[p.getX()][p.getY()];
 		if(dest != null) {
-			// TODO update hits boolarray
+			dest.registerHit(p);
 			return dest;
 		}
 		return null;

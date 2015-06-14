@@ -90,8 +90,13 @@ public class Ship {
 	}
 
 	public boolean isDestroyed() {
-		// TODO Auto-generated method stub
-		return false;
+		boolean destroyed = true;
+		for(boolean h : this.hits) {
+			if(h) {
+				destroyed = false;
+			}
+		}
+		return destroyed;
 	}
 	
 	public JsonElement getAsJson(boolean forOwner) {
@@ -110,5 +115,15 @@ public class Ship {
 			hits.add(hit);
 		}
 		return hits;
+	}
+
+	public void registerHit(Point p) {
+		for(int i = 0; i < type.size; i++) {
+			int posX = position.getX() + (orientation.x * i);
+			int posY = position.getX() + (orientation.y * i);
+			if(posX == p.getX() && posY == p.getY()) {
+				hits[i] = true;
+			}
+		}
 	}
 }
