@@ -30,6 +30,7 @@ public class BattleShipEndpoint {
 	public void onClose(Session sess, CloseReason reason) {
 		// In case the player was signed into the lobby, remove him
 		lobby.removePlayerFromLobby(sess, true);
+		System.out.println("!! Client disconnected: " + sess.getId());
 		// In case the player was ingame, remove him and send gameover packets
 		Pair<Player, Game> data = lobby.getGameForSession(sess);
 		Game g = data.getVar2();
