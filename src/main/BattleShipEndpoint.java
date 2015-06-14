@@ -28,8 +28,6 @@ public class BattleShipEndpoint {
 	
 	@OnClose
 	public void onClose(Session sess, CloseReason reason) {
-		// In case the player was signed into the lobby, remove him
-		lobby.removePlayerFromLobby(sess, true);
 		System.out.println("!! Client disconnected: " + sess.getId());
 		// In case the player was ingame, remove him and send gameover packets
 		Pair<Player, Game> data = lobby.getGameForSession(sess);
@@ -37,6 +35,9 @@ public class BattleShipEndpoint {
 		if(g != null) {
 			g.playerLeft(data.getVar1());
 		}
+		
+		// In case the player was signed into the lobby, remove him
+		lobby.removePlayerFromLobby(sess, true);
 	}
 
 	@OnOpen
@@ -46,7 +47,6 @@ public class BattleShipEndpoint {
 
 	@OnError
 	public void onError(Session sess, Throwable cause) {
-		lobby.removePlayerFromLobby(sess, true);
 		System.out.println("!! Socket error (" + cause.getMessage() + ")");
 		// In case the player was ingame, remove him and send gameover packets
 		Pair<Player, Game> data = lobby.getGameForSession(sess);
@@ -54,6 +54,9 @@ public class BattleShipEndpoint {
 		if(g != null) {
 			g.playerLeft(data.getVar1());
 		}
+		
+		// In case the player was signed into the lobby, remove him
+		lobby.removePlayerFromLobby(sess, true);
 	}
 
 	@OnMessage
