@@ -26,11 +26,10 @@ public class Field {
 		this.opponentShots = new boolean[10][10];
 	}
 	
-	// TODO
 	public boolean placeShip(Ship ship) {
 		ShipType type = ship.getType();
 		
-		// Check if already all ships of this type were set
+		// Check if shiptype already set
 		if(this.ships.get(type) != null)
 			return false;
 		

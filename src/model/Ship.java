@@ -120,7 +120,7 @@ public class Ship {
 	public void registerHit(Point p) {
 		for(int i = 0; i < type.size; i++) {
 			int posX = position.getX() + (orientation.x * i);
-			int posY = position.getX() + (orientation.y * i);
+			int posY = position.getY() + (orientation.y * i);
 			if(posX == p.getX() && posY == p.getY()) {
 				hits[i] = true;
 			}
