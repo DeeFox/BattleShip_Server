@@ -128,25 +128,32 @@ public class Field {
 	// New Stuff
 	public JsonElement getFieldAsJson(boolean forOwner) {
 		JsonObject res = new JsonObject();
-		JsonArray field = new JsonArray();
-		for(int y = 0; y < 10; y++) {
-			JsonArray row = new JsonArray();
-			for(int x = 0; x < 10; x++) {
-				String fs = getFieldString(new Point(x, y));
-				if(!forOwner)
-					fs = (fs.equals("O")) ? "." : "O";
-				JsonPrimitive f = new JsonPrimitive(fs);
-				row.add(f);
-			}
-			field.add(row);
-		}
-		res.add("field", field);
+		JsonArray hits = new JsonArray();
 		
-		JsonObject ships = new JsonObject();
+		for(int y = 0; y < 10; y++) {
+			for(int x = 0; x < 10; x++) {
+				if(opponentShots[x][y]) {
+					Point c = new Point(x, y);
+					JsonElement pos = c.asJsonElement();
+					hits.add(pos);
+				}
+			}
+		}
+		res.add("hits", hits);
+		
+		JsonArray ships = new JsonArray();
 		for(ShipType st : this.ships.keySet()) {
 			Ship sp = this.ships.get(st);
 			if(sp != null) {
-				ships.add(st.ident, sp.getAsJson(forOwner));
+				JsonObject ship = new JsonObject();
+				ship.addProperty("type", sp.getType().ident);
+				if(forOwner || sp.isDestroyed()) {
+					ship.addProperty("x", sp.getPosition().getX());
+					ship.addProperty("y", sp.getPosition().getY());
+					ship.addProperty("orientation", sp.getOrientation().shortName());
+				}
+				JsonElement boolHits = sp.getAsJson(forOwner);
+				ship.add("hits", boolHits);
 			}
 		}
 		res.add("ships", ships);

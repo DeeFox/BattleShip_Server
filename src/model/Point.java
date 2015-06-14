@@ -1,5 +1,9 @@
 package model;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
+
 public class Point {
 	private int x;
 	private int y;
@@ -36,6 +40,13 @@ public class Point {
 	}
 	public void setY(int y) {
 		this.y = y;
+	}
+	
+	public JsonElement asJsonElement() {
+		JsonArray pos = new JsonArray();
+		pos.add(new JsonPrimitive(this.x));
+		pos.add(new JsonPrimitive(this.y));
+		return pos;
 	}
 	
 }

@@ -100,6 +100,7 @@ public class Ship {
 				Arrays.fill(boolHits, true);
 			}
 		}
+		
 		for(boolean h : boolHits) {
 			JsonPrimitive hit = new JsonPrimitive(h);
 			hits.add(hit);
