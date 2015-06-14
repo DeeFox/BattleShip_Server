@@ -173,21 +173,21 @@ public class Game {
 			return;
 		}
 		
-		Field pf = getPlayerField(player);
+		Player otherPlayer = getOtherPlayer(player);
+		Field pf = getPlayerField(otherPlayer);
 		if(pf.alreadyFiredHere(coordinates)) {
 			AnswerUtils.sendError(player.getSession(), "Already fired here.");
 			return;
 		}
 		pf.fire(coordinates);
 		
-		Player otherPlayer = getOtherPlayer(player);
 		sendPlayerFieldUpdate(otherPlayer, otherPlayer);
 		sendPlayerFieldUpdate(otherPlayer, player);
 		
 		if(pf.allShipsDestroyed()) {
-			playerWon(otherPlayer);
+			playerWon(player);
 		} else {
-			nextPlayerTurn(player);
+			nextPlayerTurn(otherPlayer);
 			sendGameState(player);
 			sendGameState(otherPlayer);
 		}
