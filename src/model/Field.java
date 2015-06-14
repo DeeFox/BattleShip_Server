@@ -154,6 +154,7 @@ public class Field {
 				}
 				JsonElement boolHits = sp.getAsJson(forOwner);
 				ship.add("hits", boolHits);
+				ships.add(ship);
 			}
 		}
 		res.add("ships", ships);
