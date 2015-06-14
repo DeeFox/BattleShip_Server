@@ -26,6 +26,18 @@ public class Field {
 		this.opponentShots = new boolean[10][10];
 	}
 	
+	public int getOpponentShotCount() {
+		int cnt = 0;
+		for(int y = 0; y < 10; y++) {
+			for(int x = 0; x < 10; x++) {
+				if(opponentShots[x][y]) {
+					cnt++;
+				}
+			}
+		}
+		return cnt;
+	}
+	
 	public boolean placeShip(Ship ship) {
 		ShipType type = ship.getType();
 		

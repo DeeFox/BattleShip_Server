@@ -27,9 +27,15 @@ public class BattleShipEndpoint {
 	
 	
 	@OnClose
-	public void onClose(Session session, CloseReason reason) {
+	public void onClose(Session sess, CloseReason reason) {
 		// In case the player was signed into the lobby, remove him
-		lobby.removePlayerFromLobby(session, true);
+		lobby.removePlayerFromLobby(sess, true);
+		// In case the player was ingame, remove him and send gameover packets
+		Pair<Player, Game> data = lobby.getGameForSession(sess);
+		Game g = data.getVar2();
+		if(g != null) {
+			g.playerLeft(data.getVar1());
+		}
 	}
 
 	@OnOpen
@@ -38,9 +44,15 @@ public class BattleShipEndpoint {
 	}
 
 	@OnError
-	public void onError(Session session, Throwable cause) {
-		lobby.removePlayerFromLobby(session, true);
+	public void onError(Session sess, Throwable cause) {
+		lobby.removePlayerFromLobby(sess, true);
 		System.out.println("!! Socket error (" + cause.getMessage() + ")");
+		// In case the player was ingame, remove him and send gameover packets
+		Pair<Player, Game> data = lobby.getGameForSession(sess);
+		Game g = data.getVar2();
+		if(g != null) {
+			g.playerLeft(data.getVar1());
+		}
 	}
 
 	@OnMessage

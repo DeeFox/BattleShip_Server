@@ -26,9 +26,13 @@ public class AnswerUtils {
 	}
 	
 	public static void sendMessageToSession(Session sess, String msg) {
-		System.out.println("<< (" + sess.getId() + ") " + msg);
-		Async as = sess.getAsyncRemote();
-		as.sendText(msg);
+		try {
+			System.out.println("<< (" + sess.getId() + ") " + msg);
+			Async as = sess.getAsyncRemote();
+			as.sendText(msg);
+		} catch(Exception e) {
+			System.out.println("!! Error sending message to " + sess.getId());
+		}
 	}
 
 	public static void sendGameStart(Session sess, String opName) {
@@ -56,9 +60,7 @@ public class AnswerUtils {
 		sendMessageToSession(sess, answer.toString());
 	}
 
-	public static void sendGameOver(Session sess, boolean won) {
-		String outcome = (won) ? "winner" : "loser";
-		
+	public static void sendGameOver(Session sess, String outcome) {
 		JsonObject answer = new JsonObject();
 		answer.addProperty("action", "gameover");
 		answer.addProperty("outcome", outcome);
@@ -79,6 +81,13 @@ public class AnswerUtils {
 		answer.addProperty("action", "logmsg");
 		answer.addProperty("sender", sender);
 		answer.addProperty("message", msg);
+		
+		sendMessageToSession(sess, answer.toString());
+	}
+	
+	public static void sendPing(Session sess) {
+		JsonObject answer = new JsonObject();
+		answer.addProperty("action", "ping");
 		
 		sendMessageToSession(sess, answer.toString());
 	}

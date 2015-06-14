@@ -117,6 +117,11 @@ public class Game {
 	}
 	
 	public void playerFinishedPlacingShips(Player player) {
+		// Send out a log messages
+		String msg = "Alle Schiffe platziert.";
+		AnswerUtils.sendLogMessage(player.getSession(), msg, player.getUsername());
+		AnswerUtils.sendLogMessage(getOtherPlayer(player).getSession(), msg, player.getUsername());
+		
 		if(state.equals(GameState.BOTH_PLAYERS_PLACING_SHIPS)) {
 			if(isPlayer1(player)) {
 				state = GameState.PLAYER1_FINISHED_PLACING_SHIPS;
@@ -125,6 +130,9 @@ public class Game {
 			}
 		} else {
 			diceOutBeginner();
+			msg = "Das Spiel beginnt!";
+			AnswerUtils.sendLogMessage(player.getSession(), msg, "Server");
+			AnswerUtils.sendLogMessage(player.getSession(), msg, "Server");
 		}
 		sendGameState(player1);
 		sendGameState(player2);
@@ -148,6 +156,7 @@ public class Game {
 
 	private void diceOutBeginner() {
 		boolean player1Begins = Game.getRandomBoolean();
+		
 		if(player1Begins) {
 			state = GameState.PLAYER1_TURN;
 		} else {
@@ -213,12 +222,25 @@ public class Game {
 
 	private void playerWon(Player player) {
 		state = GameState.GAME_OVER;
-		sendGameOver(player, true);
-		sendGameOver(getOtherPlayer(player), false);
+		
+		// Log Message
+		Field pf = getPlayerField(getOtherPlayer(player));
+		int cnt = pf.getOpponentShotCount();
+		String msg = "Spieler '" + player.getUsername() + "' gewinnt das Spiel nach " + cnt + " Zuegen.";
+		AnswerUtils.sendLogMessage(player.getSession(), msg, "Server");
+		AnswerUtils.sendLogMessage(getOtherPlayer(player).getSession(), msg, "Server");
+		
+		sendGameOver(player, "winner");
+		sendGameOver(getOtherPlayer(player), "loser");
 	}
 	
-	private void sendGameOver(Player player, boolean won) {
-		AnswerUtils.sendGameOver(player.getSession(), won);
+	public void playerLeft(Player player) {
+		System.out.println("!! Player left - " + player.getSession().getId());
+		sendGameOver(getOtherPlayer(player), "player_left");
+	}
+	
+	private void sendGameOver(Player player, String outcome) {
+		AnswerUtils.sendGameOver(player.getSession(), outcome);
 	}
 
 	private Player getOtherPlayer(Player player) {
