@@ -13,11 +13,9 @@ public class SendLaterUtils implements Runnable {
 	
 	private HashMap<Session, Integer> pingers;
 	
-	private Object semaphore;
-	
 	@Override
 	public void run() {
-		synchronized(semaphore) {
+		synchronized(pingers) {
 			HashMap<Session, Integer> ps = new HashMap<Session, Integer>(pingers);
 			for(Session s : ps.keySet()) {
 				Integer c = ps.get(s);
@@ -44,7 +42,7 @@ public class SendLaterUtils implements Runnable {
 
 
 	private void addToPingList(Session sess) {
-		synchronized(semaphore) {
+		synchronized(pingers) {
 			pingers.put(sess, 15);
 		}
 	}
