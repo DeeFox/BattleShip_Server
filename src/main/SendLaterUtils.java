@@ -6,6 +6,8 @@ import javax.websocket.Session;
 
 public class SendLaterUtils implements Runnable {
 	
+	private final int PINGDELAY = 15;
+	
 	private static SendLaterUtils singleton = new SendLaterUtils();
 	static {
 		singleton.run();
@@ -19,23 +21,25 @@ public class SendLaterUtils implements Runnable {
 	
 	@Override
 	public void run() {
-		synchronized(pingers) {
-			HashMap<Session, Integer> ps = new HashMap<Session, Integer>(pingers);
-			for(Session s : ps.keySet()) {
-				Integer c = ps.get(s);
-				c = c - 1;
-				if(c <= 0) {
-					AnswerUtils.sendPing(s);
-					c = 30;
+		while(true) {
+			synchronized(pingers) {
+				HashMap<Session, Integer> ps = new HashMap<Session, Integer>(pingers);
+				for(Session s : ps.keySet()) {
+					Integer c = ps.get(s);
+					c = c - 1;
+					if(c <= 0) {
+						AnswerUtils.sendPing(s);
+						c = PINGDELAY;
+					}
+					pingers.put(s, c);
 				}
-				pingers.put(s, c);
 			}
-		}
-		try {
-			Thread.sleep(1000);
-			System.out.println("a");
-		} catch (InterruptedException e) {
-			
+			try {
+				Thread.sleep(1000);
+				System.out.println("a");
+			} catch (InterruptedException e) {
+				
+			}
 		}
 	}
 	
@@ -47,7 +51,7 @@ public class SendLaterUtils implements Runnable {
 
 	private void addToPingList(Session sess) {
 		synchronized(pingers) {
-			pingers.put(sess, 15);
+			pingers.put(sess, PINGDELAY);
 		}
 	}
 }
