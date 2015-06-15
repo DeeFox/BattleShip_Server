@@ -4,13 +4,13 @@ import java.util.HashMap;
 
 import javax.websocket.Session;
 
-public class SendLaterUtils implements Runnable {
+public class SendLaterUtils extends Thread {
 	
 	private final int PINGDELAY = 15;
 	
 	private static SendLaterUtils singleton = new SendLaterUtils();
 	static {
-		singleton.run();
+		singleton.start();
 	}
 	
 	private HashMap<Session, Integer> pingers;
@@ -19,7 +19,6 @@ public class SendLaterUtils implements Runnable {
 		this.pingers = new HashMap<Session, Integer>();
 	}
 	
-	@Override
 	public void run() {
 		while(true) {
 			synchronized(pingers) {
@@ -36,7 +35,6 @@ public class SendLaterUtils implements Runnable {
 			}
 			try {
 				Thread.sleep(1000);
-				System.out.println("a");
 			} catch (InterruptedException e) {
 				
 			}
