@@ -43,6 +43,7 @@ public class BattleShipEndpoint {
 	@OnOpen
 	public void onConnect(Session session) {
 		System.out.println("!! Client connected: " + session.getId());
+		SendLaterUtils.startPinging(session);
 	}
 
 	@OnError
