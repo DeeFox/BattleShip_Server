@@ -25,7 +25,7 @@ public class SendLaterUtils extends Thread {
 				HashMap<Session, Integer> ps = new HashMap<Session, Integer>(pingers);
 				for(Session s : ps.keySet()) {
 					Integer c = ps.get(s);
-					c = c - 1;
+					c = c - 3;
 					if(c <= 0) {
 						AnswerUtils.sendPing(s);
 						c = PINGDELAY;
@@ -34,7 +34,7 @@ public class SendLaterUtils extends Thread {
 				}
 			}
 			try {
-				Thread.sleep(1000);
+				Thread.sleep(3000);
 			} catch (InterruptedException e) {
 				
 			}
@@ -45,7 +45,15 @@ public class SendLaterUtils extends Thread {
 		singleton.addToPingList(sess);
 	}
 
+	public static void stopPinging(Session sess) {
+		singleton.removeFromPingList(sess);
+	}
 
+	private void removeFromPingList(Session sess) {
+		synchronized(pingers) {
+			pingers.remove(sess);
+		}
+	}
 
 	private void addToPingList(Session sess) {
 		synchronized(pingers) {

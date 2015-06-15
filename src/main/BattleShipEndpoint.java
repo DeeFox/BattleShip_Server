@@ -38,6 +38,9 @@ public class BattleShipEndpoint {
 		
 		// In case the player was signed into the lobby, remove him
 		lobby.removePlayerFromLobby(sess, true);
+		
+		// Stop the Pinger
+		SendLaterUtils.stopPinging(sess);
 	}
 
 	@OnOpen
@@ -58,6 +61,9 @@ public class BattleShipEndpoint {
 		
 		// In case the player was signed into the lobby, remove him
 		lobby.removePlayerFromLobby(sess, true);
+		
+		// Stop the Pinger
+		SendLaterUtils.stopPinging(sess);
 	}
 
 	@OnMessage
