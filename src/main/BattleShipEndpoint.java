@@ -164,6 +164,10 @@ public class BattleShipEndpoint {
 			try {
 				JsonElement jelem = json.get(k);
 				field = jelem.getAsString();
+				if(field.length() == 0) {
+					AnswerUtils.sendError(sess, "Crucial fields for this method missing!");
+					return null;
+				}
 				fields.put(k, field);
 			} catch(Exception e) {
 				AnswerUtils.sendError(sess, "Crucial fields for this method missing!");
