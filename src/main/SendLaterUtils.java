@@ -13,6 +13,10 @@ public class SendLaterUtils implements Runnable {
 	
 	private HashMap<Session, Integer> pingers;
 	
+	public SendLaterUtils() {
+		this.pingers = new HashMap<Session, Integer>();
+	}
+	
 	@Override
 	public void run() {
 		synchronized(pingers) {
