@@ -47,7 +47,7 @@ public class Game {
 		return (p == player1);
 	}
 	
-	private Field getPlayerField(Player p) {
+	public Field getPlayerField(Player p) {
 		return (isPlayer1(p)) ? player1Field : player2Field;
 	}
 	
@@ -56,6 +56,14 @@ public class Game {
 	}
 
 	public void placeShip(Player player, HashMap<String, String> fields) {
+		// AI: if player placed first ship, initiate the ai ship placement
+		if(getOtherPlayer(player).isAIPlayer()) {
+			AIPlayer ai = getOtherPlayer(player).getAI();
+			if(!ai.hasPlacedShips()) {
+				ai.triggerShipPlacement();
+			}
+		}
+		
 		// Check if all fields are ok
 		Point coordinates = new Point();
 		try {
@@ -151,7 +159,8 @@ public class Game {
 			(!isPlayer1(player) && state.equals(GameState.PLAYER2_FINISHED_PLACING_SHIPS)) ) {
 			msg = "opponent_placing_ships";
 		}
-		AnswerUtils.sendGameState(player.getSession(), msg);
+		if(!msg.equals(""))
+			AnswerUtils.sendGameState(player.getSession(), msg);
 	}
 
 	private void diceOutBeginner() {
@@ -243,7 +252,7 @@ public class Game {
 		AnswerUtils.sendGameOver(player.getSession(), outcome);
 	}
 
-	private Player getOtherPlayer(Player player) {
+	public Player getOtherPlayer(Player player) {
 		return (isPlayer1(player)) ? player2 : player1;
 	}
 	
@@ -256,10 +265,18 @@ public class Game {
 	}
 
 	public void sendChatMessage(Player player, HashMap<String, String> fields) {
+		Player otherPlayer = getOtherPlayer(player);
 		String msg = fields.get("message");
 		if(!(msg.length() > 0)) {
 			return;
 		}
-		AnswerUtils.sendChatMessage(getOtherPlayer(player).getSession(), msg);
+		
+		if(otherPlayer.isAIPlayer()) {
+			otherPlayer.getAI().handleChatMsg(msg);
+		} else {
+			AnswerUtils.sendChatMessage(otherPlayer.getSession(), msg);
+		}
 	}
+	
+	
 }

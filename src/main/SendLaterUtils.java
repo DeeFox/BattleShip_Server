@@ -4,9 +4,12 @@ import java.util.HashMap;
 
 import javax.websocket.Session;
 
+import model.Pair;
+
 public class SendLaterUtils extends Thread {
 	
 	private final int PINGDELAY = 15;
+	private final int SENDLATERLOOP = 1;
 	
 	private static SendLaterUtils singleton = new SendLaterUtils();
 	static {
@@ -14,18 +17,21 @@ public class SendLaterUtils extends Thread {
 	}
 	
 	private HashMap<Session, Integer> pingers;
+	private HashMap<Pair<Callable, String>, Integer> calls;
 	
 	public SendLaterUtils() {
 		this.pingers = new HashMap<Session, Integer>();
+		this.calls = new HashMap<Pair<Callable, String>, Integer>();
 	}
 	
 	public void run() {
 		while(true) {
+			// Do the pingers
 			synchronized(pingers) {
 				HashMap<Session, Integer> ps = new HashMap<Session, Integer>(pingers);
 				for(Session s : ps.keySet()) {
 					Integer c = ps.get(s);
-					c = c - 3;
+					c = c - SENDLATERLOOP;
 					if(c <= 0) {
 						AnswerUtils.sendPing(s);
 						c = PINGDELAY;
@@ -33,8 +39,25 @@ public class SendLaterUtils extends Thread {
 					pingers.put(s, c);
 				}
 			}
+			
+			// Do the calls
+			synchronized(calls) {
+				HashMap<Pair<Callable, String>, Integer> copy = new HashMap<Pair<Callable, String>, Integer>(calls);
+				for(Pair<Callable, String> c : copy.keySet()) {
+					Integer i = copy.get(c);
+					i = i - SENDLATERLOOP;
+					if(i <= 0) {
+						c.getVar1().call(c.getVar2());
+						calls.remove(c);
+					} else {
+						calls.put(c, i);
+					}
+					
+				}
+			}
+			
 			try {
-				Thread.sleep(3000);
+				Thread.sleep(1000 * SENDLATERLOOP);
 			} catch (InterruptedException e) {
 				
 			}
@@ -58,6 +81,17 @@ public class SendLaterUtils extends Thread {
 	private void addToPingList(Session sess) {
 		synchronized(pingers) {
 			pingers.put(sess, PINGDELAY);
+		}
+	}
+	
+	public static void callLater(Callable obj, String type, int delay) {
+		Pair<Callable, String> p = new Pair<Callable, String>(obj, type);
+		singleton.addToCallList(p, delay);
+	}
+
+	private void addToCallList(Pair<Callable, String> p, int delay) {
+		synchronized(calls) {
+			calls.put(p, delay);
 		}
 	}
 }

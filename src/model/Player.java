@@ -11,6 +11,7 @@ public class Player {
 	private Session session;
 	
 	private boolean isAIPlayer = false;
+	private AIPlayer ai = null;
 	
 	public Player(String username, Session session) {
 		super();
@@ -41,9 +42,13 @@ public class Player {
 		return this.isAIPlayer;
 	}
 	
-	public void setAsAIPlayer() {
+	public void setAsAIPlayer(String mode) {
 		this.isAIPlayer = true;
+		this.ai = new AIPlayer(this, mode);
 	}
 	
+	public AIPlayer getAI() {
+		return this.ai;
+	}
 	
 }

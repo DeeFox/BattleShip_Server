@@ -42,11 +42,13 @@ public class Lobby {
 		// Create 2 AI Players, set their AI flags
 		Player AIDumb = new Player("[Bot] Graham (einfach)", null);
 		Player AIHard = new Player("[Bot] Cliffe (schwer)", null);
-		AIDumb.setAsAIPlayer();
-		AIHard.setAsAIPlayer();
+		AIDumb.setAsAIPlayer("easy");
+		AIHard.setAsAIPlayer("hard");
 		// Add them to the playerlist
 		players.add(AIDumb);
 		players.add(AIHard);
+		allPlayers.add(AIDumb);
+		allPlayers.add(AIHard);
 	}
 
 	private JsonElement getPlayerlistAsJson(Player player) {
@@ -124,9 +126,12 @@ public class Lobby {
 	}
 	
 	public void removePlayerFromLobby(Session sess, boolean disconnected) {
+		
 		// Remove Player from Playerlist
 		Player p = getPlayerBySession(sess);
 		if(p == null)
+			return;
+		if(p.isAIPlayer())
 			return;
 		players.remove(p);
 		
@@ -152,6 +157,16 @@ public class Lobby {
 		// another player
 		if(challenges.keySet().contains(challengingPlayer))
 			return;
+		
+		// If challenged Player is AI, directly start game and dont remove AI
+		// As opponent create copy of AI Player with mode
+		if(challengedPlayer.isAIPlayer()) {
+			Player realOp = new Player(challengedPlayer.getUsername(), null);
+			realOp.setAsAIPlayer(challengedPlayer.getAI().getMode());
+			Game g = startGame(challengingPlayer, realOp);
+			realOp.getAI().setGame(g);
+			return;
+		}
 		
 		// Start a game when 2 players challenged each other
 		Player thirdPlayer = challenges.get(challengedPlayer);
@@ -184,7 +199,7 @@ public class Lobby {
 		}
 	}
 	
-	public void startGame(Player player1, Player player2) {
+	public Game startGame(Player player1, Player player2) {
 		Game g = new Game(player1, player2);
 		games.put(player1, g);
 		games.put(player2, g);
@@ -196,6 +211,8 @@ public class Lobby {
 		// Send Gamestart packets to players
 		AnswerUtils.sendGameStart(player1.getSession(), player2.getUsername());
 		AnswerUtils.sendGameStart(player2.getSession(), player1.getUsername());
+		
+		return g;
 	}
 
 	public void acceptChallenge(Player challengedPlayer) {

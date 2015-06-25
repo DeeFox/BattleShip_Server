@@ -110,7 +110,7 @@ public class Field {
 		return true;
 	}
 	
-	private boolean isSpaceOccupied(Ship ship) {
+	public boolean isSpaceOccupied(Ship ship) {
 		boolean isOccupied = false;
 		for(int i = 0; i < ship.getType().size; i++) {
 			int posX = ship.getPosition().getX() + (ship.getOrientation().x * i);
