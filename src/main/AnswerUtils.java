@@ -26,6 +26,10 @@ public class AnswerUtils {
 	}
 	
 	public static void sendMessageToSession(Session sess, String msg) {
+		// ignore message if target session is null ( AI etc. )
+		if(sess == null)
+			return;
+		
 		try {
 			System.out.println("<< (" + sess.getId() + ") " + msg);
 			Async as = sess.getAsyncRemote();

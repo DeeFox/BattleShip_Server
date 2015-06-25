@@ -39,10 +39,12 @@ public class Lobby {
 	}
 	
 	private void setupAIPlayers() {
+		// Create 2 AI Players, set their AI flags
 		Player AIDumb = new Player("[Bot] Graham (einfach)", null);
-		Player AIHard = new Player("[Bot] Kyle (schwer)", null);
+		Player AIHard = new Player("[Bot] Cliffe (schwer)", null);
 		AIDumb.setAsAIPlayer();
 		AIHard.setAsAIPlayer();
+		// Add them to the playerlist
 		players.add(AIDumb);
 		players.add(AIHard);
 	}
