@@ -170,6 +170,9 @@ public class Game {
 			state = GameState.PLAYER1_TURN;
 		} else {
 			state = GameState.PLAYER2_TURN;
+			if(player2.isAIPlayer()) {
+				player2.getAI().triggerAttack();
+			}
 		}
 	}
 
@@ -182,20 +185,20 @@ public class Game {
 		}
 	}
 
-	public void attack(Player player, HashMap<String, String> fields) {
+	public Ship attack(Player player, HashMap<String, String> fields) {
 		Point coordinates = new Point();
 		try {
 			coordinates = Point.fromStrings(fields.get("x"), fields.get("y"));
 		} catch(NumberFormatException e) {
 			AnswerUtils.sendError(player.getSession(), "Malformed Coordinates.");
-			return;
+			return null;
 		}
 		
 		Player otherPlayer = getOtherPlayer(player);
 		Field pf = getPlayerField(otherPlayer);
 		if(pf.alreadyFiredHere(coordinates)) {
 			AnswerUtils.sendError(player.getSession(), "Already fired here.");
-			return;
+			return null;
 		}
 		Ship target = pf.fire(coordinates);
 		
@@ -206,11 +209,19 @@ public class Game {
 		
 		if(pf.allShipsDestroyed()) {
 			playerWon(player);
+			if(player.isAIPlayer()) {
+				player.getAI().triggerCongrats();
+			}
 		} else {
 			nextPlayerTurn(player);
 			sendGameState(player);
 			sendGameState(otherPlayer);
+			
+			if(otherPlayer.isAIPlayer()) {
+				otherPlayer.getAI().triggerAttack();
+			}
 		}
+		return target;
 	}
 	
 	private void sendAttackLog(Point p, Ship target, Player player) {
