@@ -34,8 +34,19 @@ public class Lobby {
 		allPlayers = new HashSet<Player>();
 		challenges = new HashMap<Player, Player>();
 		games = new HashMap<Player, Game>();
+		
+		setupAIPlayers();
 	}
 	
+	private void setupAIPlayers() {
+		Player AIDumb = new Player("[Bot] Graham (einfach)", null);
+		Player AIHard = new Player("[Bot] Kyle (schwer)", null);
+		AIDumb.setAsAIPlayer();
+		AIHard.setAsAIPlayer();
+		players.add(AIDumb);
+		players.add(AIHard);
+	}
+
 	private JsonElement getPlayerlistAsJson(Player player) {
 		JsonArray list = new JsonArray();
 		for(Player p : players) {
@@ -135,15 +146,19 @@ public class Lobby {
 
 	public void challengePlayer(Player challengingPlayer,
 			Player challengedPlayer) {
+		// Don't create Challenge if challenging Player already challenged
+		// another player
+		if(challenges.keySet().contains(challengingPlayer))
+			return;
+		
 		// Start a game when 2 players challenged each other
 		Player thirdPlayer = challenges.get(challengedPlayer);
 		if(thirdPlayer != null && thirdPlayer == challengingPlayer) {
 			startGame(challengingPlayer, challengedPlayer);
 		}
 		
-		// Dont create Challenge when Players arent available
-		if(challenges.keySet().contains(challengingPlayer) ||
-			challenges.values().contains(challengedPlayer))
+		// Dont create Challenge when other player is already being challenged
+		if(challenges.values().contains(challengedPlayer))
 			return;
 		
 		challenges.put(challengingPlayer, challengedPlayer);

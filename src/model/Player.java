@@ -10,6 +10,8 @@ public class Player {
 	private int id;
 	private Session session;
 	
+	private boolean isAIPlayer = false;
+	
 	public Player(String username, Session session) {
 		super();
 		this.username = username;
@@ -35,6 +37,13 @@ public class Player {
 		return session;
 	}
 	
+	public boolean isAIPlayer() {
+		return this.isAIPlayer;
+	}
+	
+	public void setAsAIPlayer() {
+		this.isAIPlayer = true;
+	}
 	
 	
 }
