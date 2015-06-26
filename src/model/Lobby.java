@@ -231,4 +231,12 @@ public class Lobby {
 		Game g = games.get(p);
 		return new Pair<Player, Game>(p, g);
 	}
+
+	public String lobbyDebug() {
+		String dbg = "Players in Lobby:\n";
+		dbg += this.players.toString() + "\nAll players:\n";
+		dbg += this.allPlayers.toString() + "\nChallenges:\n";
+		dbg += this.challenges.toString();
+		return dbg;
+	}
 }

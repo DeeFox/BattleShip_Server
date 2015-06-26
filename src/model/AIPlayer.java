@@ -70,6 +70,11 @@ public class AIPlayer implements Callable {
                     aiField.placeShip(s);
                     placed = true;
                 }
+                if(i > 500) {
+                	String err = "Die AI hat sich beim Schiffe platzieren aufgehangen =(";
+                	AnswerUtils.sendError(this.game.getOtherPlayer(this.me).getSession(), err);
+                	return;
+                }
                 i++;
             }
             tries.put(t, i);

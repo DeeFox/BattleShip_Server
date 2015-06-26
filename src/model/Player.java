@@ -51,4 +51,8 @@ public class Player {
 		return this.ai;
 	}
 	
+	public String toString() {
+		String sess = (this.isAIPlayer) ? "AI" + this.ai.getMode() : this.session.getId();
+		return "Player " + this.username + " " + sess;
+	}
 }

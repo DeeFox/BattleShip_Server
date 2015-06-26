@@ -118,7 +118,7 @@ public class BattleShipEndpoint {
 		case "ship_placed":
 			fields = parseRequiredFields(sess, json, new String[] { "shiptype", "x", "y", "orientation" });
 			data = lobby.getGameForSession(sess);
-			if(data == null)
+			if(data == null || fields == null)
 				return;
 			
 			game = data.getVar2();
@@ -132,7 +132,7 @@ public class BattleShipEndpoint {
 		case "attack":
 			fields = parseRequiredFields(sess, json, new String[] { "x", "y" });
 			data = lobby.getGameForSession(sess);
-			if(data == null)
+			if(data == null || fields == null)
 				return;
 			
 			game = data.getVar2();
@@ -146,16 +146,34 @@ public class BattleShipEndpoint {
 		case "send_chat":
 			fields = parseRequiredFields(sess, json, new String[] { "message" });
 			data = lobby.getGameForSession(sess);
-			if(data == null)
+			if(data == null || fields == null)
 				return;
 			
 			game = data.getVar2();
 			player = data.getVar1();
 			
 			game.sendChatMessage(player, fields);
+			break;
+		case "dbg":
+			fields = parseRequiredFields(sess, json, new String[] { "type" });
+			if(fields != null)
+				debugRequested(sess, fields);
+			break;
 		}
 	}
 	
+	private void debugRequested(Session sess, HashMap<String, String> fields) {
+		String type = fields.get("type");
+		String resp = "";
+		switch(type) {
+		case "lobby":
+			resp = this.lobby.lobbyDebug();
+			break;
+		}
+		
+		AnswerUtils.sendMessageToSession(sess, resp);
+	}
+
 	private HashMap<String, String> parseRequiredFields(Session sess, JsonObject json, String[] fieldKeys) {
 		HashMap<String, String> fields = new HashMap<String, String>();
 		
