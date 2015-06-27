@@ -96,4 +96,16 @@ public class SendLaterUtils extends Thread {
 			calls.put(p, delay);
 		}
 	}
+	
+	private String getPingersList() {
+	    String res = "";
+	    synchronized(pingers) {
+            res = pingers.toString();
+        }
+	    return res;
+	}
+	
+	public static String getActivePingers() {
+	    return singleton.getPingersList();
+	}
 }

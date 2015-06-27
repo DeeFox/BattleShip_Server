@@ -169,6 +169,9 @@ public class BattleShipEndpoint {
 		case "lobby":
 			resp = this.lobby.lobbyDebug();
 			break;
+		case "pings":
+		    resp = SendLaterUtils.getActivePingers();
+		    break;
 		}
 		
 		AnswerUtils.sendMessageToSession(sess, resp);

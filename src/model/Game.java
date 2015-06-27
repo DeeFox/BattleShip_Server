@@ -289,5 +289,9 @@ public class Game {
 		}
 	}
 	
-	
+	public String toString() {
+	    String res = "";
+	    res = "Game [" + player1.getUsername() + ", " + player2.getUsername() + "] " + state.name();
+	    return res;
+	}
 }

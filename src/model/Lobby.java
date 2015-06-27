@@ -236,7 +236,8 @@ public class Lobby {
 		String dbg = "Players in Lobby:\n";
 		dbg += this.players.toString() + "\nAll players:\n";
 		dbg += this.allPlayers.toString() + "\nChallenges:\n";
-		dbg += this.challenges.toString();
+		dbg += this.challenges.toString() + "\nGames:\n";
+		dbg += this.games.toString();
 		return dbg;
 	}
 }

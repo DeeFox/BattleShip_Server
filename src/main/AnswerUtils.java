@@ -26,19 +26,7 @@ public class AnswerUtils {
 	}
 	
 	public static boolean sendMessageToSession(Session sess, String msg) {
-		// ignore message if target session is null ( AI etc. )
-		if(sess == null)
-			return true;
-		
-		try {
-			System.out.println("<< (" + sess.getId() + ") " + msg);
-			Async as = sess.getAsyncRemote();
-			as.sendText(msg);
-			return true;
-		} catch(Exception e) {
-			System.out.println("!! Error sending message to " + sess.getId());
-			return false;
-		}
+		return sendMessageToSession(sess, msg, true);
 	}
 
 	public static void sendGameStart(Session sess, String opName) {
@@ -95,6 +83,25 @@ public class AnswerUtils {
 		JsonObject answer = new JsonObject();
 		answer.addProperty("action", "ping");
 		
-		return sendMessageToSession(sess, answer.toString());
+		return sendMessageToSession(sess, answer.toString(), false);
 	}
+
+    private static boolean sendMessageToSession(Session sess, String msg,
+            boolean log) {
+     // ignore message if target session is null ( AI etc. )
+        if(sess == null)
+            return true;
+        
+        try {
+            if(log)
+                System.out.println("<< (" + sess.getId() + ") " + msg);
+            
+            Async as = sess.getAsyncRemote();
+            as.sendText(msg);
+            return true;
+        } catch(Exception e) {
+            System.out.println("!! Error sending message to " + sess.getId());
+            return false;
+        }
+    }
 }
