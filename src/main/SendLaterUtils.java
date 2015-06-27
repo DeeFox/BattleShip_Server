@@ -100,7 +100,9 @@ public class SendLaterUtils extends Thread {
 	private String getPingersList() {
 	    String res = "";
 	    synchronized(pingers) {
-            res = pingers.toString();
+	        for(Session s : pingers.keySet()) {
+	            res += s.getId() + "\n";
+	        }
         }
 	    return res;
 	}
