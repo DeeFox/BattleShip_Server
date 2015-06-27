@@ -33,7 +33,9 @@ public class SendLaterUtils extends Thread {
 					Integer c = ps.get(s);
 					c = c - SENDLATERLOOP;
 					if(c <= 0) {
-						AnswerUtils.sendPing(s);
+						boolean success = AnswerUtils.sendPing(s);
+						if(!success)
+						    pingers.remove(s);
 						c = PINGDELAY;
 					}
 					pingers.put(s, c);

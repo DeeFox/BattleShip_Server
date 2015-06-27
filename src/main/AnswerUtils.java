@@ -25,17 +25,19 @@ public class AnswerUtils {
 		sendMessageToSession(sess, answer.toString());
 	}
 	
-	public static void sendMessageToSession(Session sess, String msg) {
+	public static boolean sendMessageToSession(Session sess, String msg) {
 		// ignore message if target session is null ( AI etc. )
 		if(sess == null)
-			return;
+			return true;
 		
 		try {
 			System.out.println("<< (" + sess.getId() + ") " + msg);
 			Async as = sess.getAsyncRemote();
 			as.sendText(msg);
+			return true;
 		} catch(Exception e) {
 			System.out.println("!! Error sending message to " + sess.getId());
+			return false;
 		}
 	}
 
@@ -89,10 +91,10 @@ public class AnswerUtils {
 		sendMessageToSession(sess, answer.toString());
 	}
 	
-	public static void sendPing(Session sess) {
+	public static boolean sendPing(Session sess) {
 		JsonObject answer = new JsonObject();
 		answer.addProperty("action", "ping");
 		
-		sendMessageToSession(sess, answer.toString());
+		return sendMessageToSession(sess, answer.toString());
 	}
 }
