@@ -32,13 +32,15 @@ public class SendLaterUtils extends Thread {
 				for(Session s : ps.keySet()) {
 					Integer c = ps.get(s);
 					c = c - SENDLATERLOOP;
+					boolean success = true;
 					if(c <= 0) {
-						boolean success = AnswerUtils.sendPing(s);
+						success = AnswerUtils.sendPing(s);
 						if(!success)
 						    pingers.remove(s);
 						c = PINGDELAY;
 					}
-					pingers.put(s, c);
+					if(success)
+					    pingers.put(s, c);
 				}
 			}
 			
