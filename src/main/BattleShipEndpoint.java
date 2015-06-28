@@ -1,4 +1,5 @@
 package main;
+import java.io.IOException;
 import java.util.HashMap;
 
 import javax.websocket.CloseReason;
@@ -41,6 +42,11 @@ public class BattleShipEndpoint {
 		
 		// Stop the Pinger
 		SendLaterUtils.stopPinging(sess);
+		
+		try {
+            sess.close();
+        } catch (IOException e) {
+        }
 	}
 
 	@OnOpen
@@ -64,6 +70,11 @@ public class BattleShipEndpoint {
 		
 		// Stop the Pinger
 		SendLaterUtils.stopPinging(sess);
+		
+		try {
+            sess.close();
+        } catch (IOException e) {
+        }
 	}
 
 	@OnMessage

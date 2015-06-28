@@ -1,6 +1,10 @@
 package main;
+import java.io.IOException;
+
 import javax.websocket.RemoteEndpoint.Async;
 import javax.websocket.Session;
+
+import model.Lobby;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -101,6 +105,17 @@ public class AnswerUtils {
             return true;
         } catch(Exception e) {
             System.out.println("!! Error sending message to " + sess.getId());
+            System.out.println("Closing connection & removing from lobby!");
+            
+            Lobby lb = Lobby.getInstance();
+            lb.removePlayerFromLobby(sess, true);
+            
+            // Close da session
+            try {
+                sess.close();
+            } catch (IOException e1) {
+                // DO NUTHIN'
+            }
             return false;
         }
     }

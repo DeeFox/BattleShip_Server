@@ -53,4 +53,7 @@ public class Point {
 		return pos;
 	}
 	
+	public String toString() {
+	    return "Point(" + this.x + ", " + this.y + ")";
+	}
 }

@@ -204,7 +204,7 @@ public class AIPlayer implements Callable {
 	
 	public void doTurn() {
 		Point target = calcTurnCoord();
-		System.out.println(target.toString());
+		System.out.println("AI firing on " + target.toString());
 		
 		HashMap<String, String> fields = new HashMap<String, String>();
 		fields.put("x", String.valueOf(target.getX()));
