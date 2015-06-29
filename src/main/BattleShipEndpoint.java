@@ -32,9 +32,11 @@ public class BattleShipEndpoint {
 		System.out.println("!! Client disconnected: " + sess.getId());
 		// In case the player was ingame, remove him and send gameover packets
 		Pair<Player, Game> data = lobby.getGameForSession(sess);
-		Game g = data.getVar2();
-		if(g != null) {
-			g.playerLeft(data.getVar1());
+		if(data != null) {
+			Game g = data.getVar2();
+			if(g != null) {
+				g.playerLeft(data.getVar1());
+			}
 		}
 		
 		// In case the player was signed into the lobby, remove him
