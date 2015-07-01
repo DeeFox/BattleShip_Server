@@ -177,7 +177,7 @@ public class BattleShipEndpoint {
 			if(fields != null) {
 				try {
 					Player pl = lobby.getPlayerById(Integer.parseInt(fields.get("userid")));
-					AnswerUtils.sendLogMessage(pl.getSession(), fields.get("msg"), "Console");
+					AnswerUtils.sendChatMessage(pl.getSession(), fields.get("msg"));
 				} catch(Exception e) {
 					
 				}
