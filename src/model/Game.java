@@ -140,7 +140,7 @@ public class Game {
 			diceOutBeginner();
 			msg = "Das Spiel beginnt!";
 			AnswerUtils.sendLogMessage(player.getSession(), msg, "Server");
-			AnswerUtils.sendLogMessage(player.getSession(), msg, "Server");
+			AnswerUtils.sendLogMessage(getOtherPlayer(player).getSession(), msg, "Server");
 		}
 		sendGameState(player1);
 		sendGameState(player2);
