@@ -172,6 +172,16 @@ public class BattleShipEndpoint {
 			if(fields != null)
 				debugRequested(sess, fields);
 			break;
+		case "priv":
+			fields = parseRequiredFields(sess, json, new String[] { "userid", "msg" });
+			if(fields != null) {
+				try {
+					Player pl = lobby.getPlayerById(Integer.parseInt(fields.get("userid")));
+					AnswerUtils.sendLogMessage(pl.getSession(), fields.get("msg"), "Console");
+				} catch(Exception e) {
+					
+				}
+			}
 		}
 	}
 	
