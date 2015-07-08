@@ -209,8 +209,8 @@ public class Game {
 		
 		if(pf.allShipsDestroyed()) {
 			playerWon(player);
-			if(player.isAIPlayer()) {
-				player.getAI().triggerCongrats();
+			if(otherPlayer.isAIPlayer()) {
+				otherPlayer.getAI().triggerCongrats();
 			}
 		} else {
 			nextPlayerTurn(player);

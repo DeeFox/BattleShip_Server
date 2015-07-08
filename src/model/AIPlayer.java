@@ -50,6 +50,12 @@ public class AIPlayer implements Callable {
 	}
 	
 	public void triggerAttack() {
+		String pname = game.getOtherPlayer(me).getUsername();
+		if(pname.equals("KITest")) {
+			doTurn();
+			return;
+		}
+		
 		SendLaterUtils.callLater(this, "attack", 2);
 	}
 	
@@ -99,7 +105,7 @@ public class AIPlayer implements Callable {
 	}
 	
 	private void congrats() {
-		String msg = "Glückwunsch! Gutes Spiel!";
+		String msg = "Glückwunsch! Gutes Spiel! :)";
 		AnswerUtils.sendChatMessage(this.game.getOtherPlayer(this.me).getSession(), msg);
 	}
 
