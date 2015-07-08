@@ -50,12 +50,6 @@ public class AIPlayer implements Callable {
 	}
 	
 	public void triggerAttack() {
-		String pname = game.getOtherPlayer(me).getUsername();
-		if(pname.equals("KITest")) {
-			doTurn();
-			return;
-		}
-		
 		SendLaterUtils.callLater(this, "attack", 2);
 	}
 	
