@@ -1,5 +1,6 @@
 package model;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
@@ -22,9 +23,9 @@ public class AIPlayer implements Callable {
     private Point lastCoord;
     private Point firstHitCoord;
     private boolean wasLastHit = false;
-    private boolean[][] tries;
-    private boolean[][] hits;
     private boolean[][] fires;
+    private boolean[][] destroyedShips;
+    private ArrayList<Point> currentShip;
 	
 	private String difficulty = "easy";
 	private boolean hasPlacedShips = false;
@@ -35,9 +36,10 @@ public class AIPlayer implements Callable {
 		this.difficulty = mode;
 		this.me = me;
 		
-		this.tries = new boolean[10][10];
-        this.hits = new boolean[10][10];
         this.fires = new boolean[10][10];
+        
+        this.destroyedShips = new boolean[10][10];
+        this.currentShip = new ArrayList<Point>();
 	}
 
 	public boolean hasPlacedShips() {
@@ -56,30 +58,48 @@ public class AIPlayer implements Callable {
 	public void placeShips() {
 		Field aiField = this.game.getPlayerField(this.me);
 		
-        // Try to place all ships randomly
-		HashMap<ShipType, Integer> tries = new HashMap<ShipType, Integer>();
-        for (ShipType t : ShipType.values()) {
-            boolean placed = false;
-            int i = 0;
-            while (!placed) {
-                Orientation o = (rnd.nextBoolean()) ? Orientation.HORIZONTAL : Orientation.VERTICAL;
-                Point pos = new Point(rnd.nextInt(10), rnd.nextInt(10));
-                Ship s = new Ship(t, pos, o);
-                boolean occupied = aiField.isSpaceOccupied(s);
-                if (!occupied) {
-                    aiField.placeShip(s);
-                    placed = true;
+        // Try to place all ships randomly with double safety
+		boolean done = false;
+		int completeTries = 0;
+		while(!done) {
+		    // For a new try, clear the field
+		    aiField.clear();
+		    boolean error = false;
+		    
+		    // Try to place each shiptype randomly
+            for (ShipType t : ShipType.values()) {
+                
+                // Try to place the shiptype at random locations, max 500 tries
+                boolean placed = false;
+                int i = 0;
+                while (!placed && !error) {
+                    Orientation o = (rnd.nextBoolean()) ? Orientation.HORIZONTAL : Orientation.VERTICAL;
+                    Point pos = new Point(rnd.nextInt(10), rnd.nextInt(10));
+                    Ship s = new Ship(t, pos, o);
+                    boolean occupied = aiField.isSpaceOccupied(s);
+                    if (!occupied) {
+                        aiField.placeShip(s);
+                        placed = true;
+                    }
+                    if(i > 500) {
+                        error = true;
+                    }
+                    i++;
                 }
-                if(i > 500) {
-                	String err = "Die AI hat sich beim Schiffe platzieren aufgehangen =(";
-                	AnswerUtils.sendError(this.game.getOtherPlayer(this.me).getSession(), err);
-                	return;
-                }
-                i++;
             }
-            tries.put(t, i);
-        }
-        System.out.println("## " + tries.toString());
+            // If there was an error in the try, do a new one, if already more than 10 errors, quit
+            if(error) {
+                if(completeTries > 10) {
+                    String err = "Die AI hat sich beim Schiffe platzieren aufgehangen =(";
+                    AnswerUtils.sendError(this.game.getOtherPlayer(this.me).getSession(), err);
+                    return;
+                }
+            } else {
+                done = true;
+            }
+            completeTries++;
+		}
+        System.out.println("## Complete Tries: " + completeTries);
         this.game.playerFinishedPlacingShips(this.me);
 	}
 
@@ -92,14 +112,30 @@ public class AIPlayer implements Callable {
 		case "attack":
 			doTurn();
 			break;
-		case "congrats":
-			congrats();
+		case "congratswin":
+			congrats(true);
 			break;
+		case "congratsgg":
+            congrats(false);
+            break;
+		case "havefun":
+		    havefun();
+		    break;
 		}
 	}
 	
-	private void congrats() {
-		String msg = "GlÃ¼ckwunsch! Gutes Spiel!";
+	private void havefun() {
+        String msg = "Viel Glück! Viel Erfolg!";
+        AnswerUtils.sendChatMessage(this.game.getOtherPlayer(this.me).getSession(), msg);
+    }
+
+    private void congrats(boolean win) {
+	    String msg = "";
+	    if(win) {
+	        msg = "GlÃ¼ckwunsch! Gutes Spiel!";
+	    } else {
+	        msg = "Vielen Dank! Gutes Spiel!";
+	    }
 		AnswerUtils.sendChatMessage(this.game.getOtherPlayer(this.me).getSession(), msg);
 	}
 
@@ -112,9 +148,49 @@ public class AIPlayer implements Callable {
 			String id = this.me.getUsername() + " - " + this.me.getId();
 			AnswerUtils.sendChatMessage(this.game.getOtherPlayer(this.me).getSession(), id);
 		}
+		if(msg.equals("stats")) {
+		    calculateStatistics();
+		}
 	}
 	
-	public void setGame(Game g) {
+	private void calculateStatistics() {
+	    DecimalFormat df = new DecimalFormat("###.##");
+	    
+        Field myField = this.game.getPlayerField(this.me);
+        int opShots = myField.getOpponentShotCount();
+        int opHits = myField.getOpponentHitCount();
+        
+        Field opField = this.game.getPlayerField(this.game.getOtherPlayer(this.me));
+        int myShots = opField.getOpponentShotCount();
+        int myHits = opField.getOpponentHitCount();
+        
+        if(opShots > 1 && myShots > 1) {
+            double myProgress = myHits / 30.0;
+            double opProgress = opHits / 30.0;
+            String leading = "";
+            if(myProgress > opProgress) {
+                leading = "Momentan führe ich mit " + df.format(myProgress) + "% zu " + df.format(opProgress) + "%";
+            } else if(opProgress < myProgress) {
+                leading = "Momentan führst du mit " + df.format(opProgress) + "% zu " + df.format(myProgress) + "%";
+            } else {
+                leading = "Momentan sind wir gleichauf mit " + df.format(myProgress) + "% zu " + df.format(opProgress) + "%";
+            }
+            AnswerUtils.sendChatMessage(this.game.getOtherPlayer(this.me).getSession(), leading);
+            
+            double myQuote = (myHits*1.0) / (myShots * 1.0);
+            double opQuote = (opHits*1.0) / (opShots * 1.0);
+            String opQ = "Deine Trefferquote: " + df.format(opQuote) + "%";
+            String myQ = "Meine Trefferquote: " + df.format(myQuote) + "%";
+            AnswerUtils.sendChatMessage(this.game.getOtherPlayer(this.me).getSession(), opQ);
+            AnswerUtils.sendChatMessage(this.game.getOtherPlayer(this.me).getSession(), myQ);
+            
+        } else {
+            String msg = "Statistiken gibt es erst nachdem jeder einmal geschossen hat.";
+            AnswerUtils.sendChatMessage(this.game.getOtherPlayer(this.me).getSession(), msg);
+        }
+    }
+
+    public void setGame(Game g) {
 		this.game = g;
 	}
 	
@@ -132,7 +208,6 @@ public class AIPlayer implements Callable {
                 if (!alreadyFiredHere(tmp))
                     validCoord = true;
             }
-            this.tries[tmp.getX()][tmp.getY()] = true;
             return tmp;
         } else if (mode.equals("search2nd")) {
             ArrayList<Point> tries = new ArrayList<Point>();
@@ -144,7 +219,7 @@ public class AIPlayer implements Callable {
 
             ArrayList<Point> newTries = new ArrayList<Point>(tries);
             for (Point tr : tries) {
-                if (!Field.isValidPoint(tr) || alreadyFiredHere(tr)) {
+                if (!Field.isValidPoint(tr) || alreadyFiredHere(tr) || isCellExcluded(tr)) {
                     newTries.remove(tr);
                 }
             }
@@ -155,7 +230,7 @@ public class AIPlayer implements Callable {
             return tries.get(pos);
         } else if (mode.equals("destroy")) {
             Point target = new Point(this.lastCoord.getX() + this.destroyDirX, this.lastCoord.getY() + this.destroyDirY);
-            if (!Field.isValidPoint(target) || !this.wasLastHit || alreadyFiredHere(target)) {
+            if (!Field.isValidPoint(target) || !this.wasLastHit || alreadyFiredHere(target) || isCellExcluded(target)) {
                 this.destroyDirX = this.destroyDirX * -1;
                 this.destroyDirY = this.destroyDirY * -1;
                 this.lastCoord = this.firstHitCoord;
@@ -179,23 +254,26 @@ public class AIPlayer implements Callable {
             int tx = ty % 2;
             tx += (rnd.nextInt(5) * 2);
             tmp = new Point(ty, tx);
-            if (!alreadyFiredHere(tmp) && !alreadyTriedOnAdjascent(tmp) && Field.isValidPoint(tmp))
+            if (!alreadyFiredHere(tmp) && !isCellExcluded(tmp) && Field.isValidPoint(tmp))
                 validCoord = true;
         }
-        this.tries[tmp.getX()][tmp.getY()] = true;
         return tmp;
     }
 	
-	private boolean alreadyTriedOnAdjascent(Point p) {
-        Point[] pts = new Point[4];
+	private boolean isCellExcluded(Point p) {
+        Point[] pts = new Point[8];
         pts[0] = new Point(p.getX(), p.getY() - 1);
         pts[1] = new Point(p.getX() - 1, p.getY());
         pts[2] = new Point(p.getX() + 1, p.getY());
         pts[3] = new Point(p.getX(), p.getY() + 1);
+        pts[4] = new Point(p.getX() - 1, p.getY() - 1);
+        pts[5] = new Point(p.getX() + 1, p.getY() - 1);
+        pts[6] = new Point(p.getX() - 1, p.getY() + 1);
+        pts[7] = new Point(p.getX() + 1, p.getY() + 1);
 
         for (Point pt : pts) {
             if (Field.isValidPoint(pt)) {
-                if (this.tries[pt.getX()][pt.getY()] || this.hits[pt.getX()][pt.getY()])
+                if (this.destroyedShips[pt.getX()][pt.getY()])
                     return true;
             }
         }
@@ -216,7 +294,6 @@ public class AIPlayer implements Callable {
         this.lastCoord = target;
         
         if(t != null) {
-        	this.hits[target.getX()][target.getY()] = true;
         	if (this.mode == "search") {
                 this.lastHitCoord = target;
                 this.firstHitCoord = target;
@@ -226,9 +303,18 @@ public class AIPlayer implements Callable {
                 this.destroyDirY = target.getY() - this.lastHitCoord.getY();
                 this.mode = "destroy";
             }
+        	
+        	// Register as Hit for current Ship
+            this.currentShip.add(target);
             
             if (t.isDestroyed()) {
                 this.mode = "search";
+                
+                // Register full hit
+                for(Point p : this.currentShip) {
+                    this.destroyedShips[p.getX()][p.getY()] = true;
+                }
+                this.currentShip.clear();
             }
             this.wasLastHit = true;
         } else {
@@ -236,7 +322,12 @@ public class AIPlayer implements Callable {
         }
 	}
 
-	public void triggerCongrats() {
-		SendLaterUtils.callLater(this, "congrats", 2);
+	public void triggerCongrats(boolean win) {
+	    String type = (win) ? "congratswin" : "congratsgg";
+		SendLaterUtils.callLater(this, type, 2);
 	}
+
+    public void triggerHaveFun() {
+        SendLaterUtils.callLater(this, "havefun", 1);
+    }
 }

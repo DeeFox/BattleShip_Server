@@ -110,7 +110,7 @@ public class AnswerUtils {
             Lobby lb = Lobby.getInstance();
             lb.removePlayerFromLobby(sess, true);
             
-            // Close da session
+            // Close the session
             try {
                 sess.close();
             } catch (IOException e1) {

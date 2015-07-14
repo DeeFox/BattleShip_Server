@@ -126,4 +126,14 @@ public class Ship {
 			}
 		}
 	}
+	
+	public int getHitCount() {
+	    int cnt = 0;
+	    for(boolean h : this.hits) {
+            if(h) {
+                cnt++;
+            }
+        }
+	    return cnt;
+	}
 }
