@@ -154,11 +154,13 @@ public class AIPlayer implements Callable {
 	}
 	
 	private void calculateStatistics() {
+		System.out.println("Calc");
 	    DecimalFormat df = new DecimalFormat("###.##");
 	    
         Field myField = this.game.getPlayerField(this.me);
         int opShots = myField.getOpponentShotCount();
         int opHits = myField.getOpponentHitCount();
+        System.out.println("Calc2");
         
         Field opField = this.game.getPlayerField(this.game.getOtherPlayer(this.me));
         int myShots = opField.getOpponentShotCount();
