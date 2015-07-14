@@ -7,7 +7,6 @@ import model.Ship.ShipType;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 
 public class Field {
 	
@@ -36,6 +35,14 @@ public class Field {
 			}
 		}
 		return cnt;
+	}
+	
+	public int getOpponentHitCount() {
+	    int cnt = 0;
+	    for(Ship s : this.ships.values()) {
+	        cnt = cnt + s.getHitCount();
+	    }
+	    return cnt;
 	}
 	
 	public boolean placeShip(Ship ship) {
@@ -210,4 +217,14 @@ public class Field {
 		
 		return res;
 	}
+
+    public void clear() {
+        this.ships = new HashMap<ShipType, Ship>();
+        for(ShipType t : ShipType.values()) {
+            this.ships.put(t, null);
+        }
+        
+        this.fields = new Ship[10][10];
+        this.opponentShots = new boolean[10][10];
+    }
 }

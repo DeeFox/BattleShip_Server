@@ -44,7 +44,7 @@ public class Lobby {
 		Player AIHard = new Player("[Bot] Cliffe (schwer)", null);
 		AIDumb.setAsAIPlayer("easy");
 		AIHard.setAsAIPlayer("hard");
-		// Add them to the playerlist
+		// Add them to the lobby and overall playerlists
 		players.add(AIDumb);
 		players.add(AIHard);
 		allPlayers.add(AIDumb);

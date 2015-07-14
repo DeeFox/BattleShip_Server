@@ -127,8 +127,9 @@ public class Game {
 	public void playerFinishedPlacingShips(Player player) {
 		// Send out a log messages
 		String msg = "Alle Schiffe platziert.";
+		Player otherPlayer = getOtherPlayer(player);
 		AnswerUtils.sendLogMessage(player.getSession(), msg, player.getUsername());
-		AnswerUtils.sendLogMessage(getOtherPlayer(player).getSession(), msg, player.getUsername());
+		AnswerUtils.sendLogMessage(otherPlayer.getSession(), msg, player.getUsername());
 		
 		if(state.equals(GameState.BOTH_PLAYERS_PLACING_SHIPS)) {
 			if(isPlayer1(player)) {
@@ -140,7 +141,13 @@ public class Game {
 			diceOutBeginner();
 			msg = "Das Spiel beginnt!";
 			AnswerUtils.sendLogMessage(player.getSession(), msg, "Server");
-			AnswerUtils.sendLogMessage(getOtherPlayer(player).getSession(), msg, "Server");
+			AnswerUtils.sendLogMessage(otherPlayer.getSession(), msg, "Server");
+			
+			// Find out if one of the players is AI and trigger Have Fun Chat Message
+			if(player.isAIPlayer() || otherPlayer.isAIPlayer()) {
+			    Player aiPlayer = (player.isAIPlayer()) ? player : otherPlayer;
+			    aiPlayer.getAI().triggerHaveFun();
+			}
 		}
 		sendGameState(player1);
 		sendGameState(player2);
@@ -210,8 +217,12 @@ public class Game {
 		if(pf.allShipsDestroyed()) {
 			playerWon(player);
 			if(otherPlayer.isAIPlayer()) {
-				otherPlayer.getAI().triggerCongrats();
+			    otherPlayer.getAI().triggerCongrats(true);
 			}
+			if(player.isAIPlayer()) {
+			    player.getAI().triggerCongrats(false);
+            }
+			
 		} else {
 			nextPlayerTurn(player);
 			sendGameState(player);
