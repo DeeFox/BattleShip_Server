@@ -164,6 +164,8 @@ public class AIPlayer implements Callable {
         int myShots = opField.getOpponentShotCount();
         int myHits = opField.getOpponentHitCount();
         
+        System.out.println("* op " + opShots + " my " + myShots);
+        
         if(opShots > 1 && myShots > 1) {
             double myProgress = myHits / 30.0 * 100.0;
             double opProgress = opHits / 30.0 * 100.0;
@@ -175,17 +177,20 @@ public class AIPlayer implements Callable {
             } else {
                 leading = "Momentan sind wir gleichauf mit " + df.format(myProgress) + "% zu " + df.format(opProgress) + "%";
             }
+            System.out.println("* send1");
             AnswerUtils.sendChatMessage(this.game.getOtherPlayer(this.me).getSession(), leading);
             
             double myQuote = (myHits*1.0) / (myShots * 1.0) * 100.0;
             double opQuote = (opHits*1.0) / (opShots * 1.0) * 100.0;
             String opQ = "Deine Trefferquote: " + df.format(opQuote) + "%";
             String myQ = "Meine Trefferquote: " + df.format(myQuote) + "%";
+            System.out.println("* send2");
             AnswerUtils.sendChatMessage(this.game.getOtherPlayer(this.me).getSession(), opQ);
             AnswerUtils.sendChatMessage(this.game.getOtherPlayer(this.me).getSession(), myQ);
             
         } else {
             String msg = "Statistiken gibt es erst nachdem jeder einmal geschossen hat.";
+            System.out.println("* sendErr");
             AnswerUtils.sendChatMessage(this.game.getOtherPlayer(this.me).getSession(), msg);
         }
     }
