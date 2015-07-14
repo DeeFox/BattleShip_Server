@@ -125,7 +125,7 @@ public class AIPlayer implements Callable {
 	}
 	
 	private void havefun() {
-        String msg = "Viel Gl�ck! Viel Erfolg!";
+        String msg = "Viel Glück! Viel Erfolg!";
         AnswerUtils.sendChatMessage(this.game.getOtherPlayer(this.me).getSession(), msg);
     }
 
@@ -165,20 +165,20 @@ public class AIPlayer implements Callable {
         int myHits = opField.getOpponentHitCount();
         
         if(opShots > 1 && myShots > 1) {
-            double myProgress = myHits / 30.0;
-            double opProgress = opHits / 30.0;
+            double myProgress = myHits / 30.0 * 100.0;
+            double opProgress = opHits / 30.0 * 100.0;
             String leading = "";
             if(myProgress > opProgress) {
-                leading = "Momentan f�hre ich mit " + df.format(myProgress) + "% zu " + df.format(opProgress) + "%";
+                leading = "Momentan führe ich mit " + df.format(myProgress) + "% zu " + df.format(opProgress) + "%";
             } else if(opProgress < myProgress) {
-                leading = "Momentan f�hrst du mit " + df.format(opProgress) + "% zu " + df.format(myProgress) + "%";
+                leading = "Momentan führst du mit " + df.format(opProgress) + "% zu " + df.format(myProgress) + "%";
             } else {
                 leading = "Momentan sind wir gleichauf mit " + df.format(myProgress) + "% zu " + df.format(opProgress) + "%";
             }
             AnswerUtils.sendChatMessage(this.game.getOtherPlayer(this.me).getSession(), leading);
             
-            double myQuote = (myHits*1.0) / (myShots * 1.0);
-            double opQuote = (opHits*1.0) / (opShots * 1.0);
+            double myQuote = (myHits*1.0) / (myShots * 1.0) * 100.0;
+            double opQuote = (opHits*1.0) / (opShots * 1.0) * 100.0;
             String opQ = "Deine Trefferquote: " + df.format(opQuote) + "%";
             String myQ = "Meine Trefferquote: " + df.format(myQuote) + "%";
             AnswerUtils.sendChatMessage(this.game.getOtherPlayer(this.me).getSession(), opQ);
