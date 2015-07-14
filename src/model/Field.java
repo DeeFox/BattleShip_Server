@@ -40,7 +40,8 @@ public class Field {
 	public int getOpponentHitCount() {
 	    int cnt = 0;
 	    for(Ship s : this.ships.values()) {
-	        cnt = cnt + s.getHitCount();
+	    	if(s != null)
+	    		cnt = cnt + s.getHitCount();
 	    }
 	    return cnt;
 	}
