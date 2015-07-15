@@ -174,7 +174,7 @@ public class AIPlayer implements Callable {
             String leading = "";
             if(myProgress > opProgress) {
                 leading = "Momentan führe ich mit " + df.format(myProgress) + "% zu " + df.format(opProgress) + "%";
-            } else if(opProgress < myProgress) {
+            } else if(myProgress < opProgress) {
                 leading = "Momentan führst du mit " + df.format(opProgress) + "% zu " + df.format(myProgress) + "%";
             } else {
                 leading = "Momentan sind wir gleichauf mit " + df.format(myProgress) + "% zu " + df.format(opProgress) + "%";
