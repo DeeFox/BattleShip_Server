@@ -173,15 +173,16 @@ public class BattleShipEndpoint {
 				debugRequested(sess, fields);
 			break;
 		case "priv":
-			fields = parseRequiredFields(sess, json, new String[] { "userid", "msg" });
-			if(fields != null) {
-				try {
-					Player pl = lobby.getPlayerById(Integer.parseInt(fields.get("userid")));
-					AnswerUtils.sendChatMessage(pl.getSession(), fields.get("msg"));
-				} catch(Exception e) {
-					
-				}
-			}
+			// Not enabled!!
+//			fields = parseRequiredFields(sess, json, new String[] { "userid", "msg" });
+//			if(fields != null) {
+//				try {
+//					Player pl = lobby.getPlayerById(Integer.parseInt(fields.get("userid")));
+//					AnswerUtils.sendChatMessage(pl.getSession(), fields.get("msg"));
+//				} catch(Exception e) {
+//					
+//				}
+//			}
 		}
 	}
 	
