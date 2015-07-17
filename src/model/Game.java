@@ -224,12 +224,21 @@ public class Game {
             }
 			
 		} else {
-			nextPlayerTurn(player);
+			nextPlayerTurn(player, target);
 			sendGameState(player);
 			sendGameState(otherPlayer);
 			
 			if(otherPlayer.isAIPlayer()) {
-				otherPlayer.getAI().triggerAttack();
+				if( (isPlayer1(otherPlayer) && state.equals(GameState.PLAYER1_TURN)) ||
+						(!isPlayer1(otherPlayer) && state.equals(GameState.PLAYER2_TURN) )) {
+					otherPlayer.getAI().triggerAttack();
+				}
+			}
+			if(player.isAIPlayer()) {
+				if( (isPlayer1(player) && state.equals(GameState.PLAYER1_TURN)) ||
+						(!isPlayer1(player) && state.equals(GameState.PLAYER2_TURN) )) {
+					player.getAI().triggerAttack();
+				}
 			}
 		}
 		return target;
@@ -278,11 +287,13 @@ public class Game {
 		return (isPlayer1(player)) ? player2 : player1;
 	}
 	
-	private void nextPlayerTurn(Player player) {
-		if(isPlayer1(player)) {
-			state = GameState.PLAYER2_TURN;
-		} else {
-			state = GameState.PLAYER1_TURN;
+	private void nextPlayerTurn(Player player, Ship target) {
+		if(target == null) {
+			if(isPlayer1(player)) {
+				state = GameState.PLAYER2_TURN;
+			} else {
+				state = GameState.PLAYER1_TURN;
+			}
 		}
 	}
 
