@@ -17,6 +17,8 @@ public class Player {
 		super();
 		this.username = username;
 		this.session = session;
+		
+		// Make sure, every player gets a unique ID
 		this.id = Player.getNextId();
 	}
 	

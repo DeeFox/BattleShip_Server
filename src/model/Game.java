@@ -66,7 +66,7 @@ public class Game {
 			}
 		}
 		
-		// Check if all fields are ok
+		// Check if coordinates are ok
 		Point coordinates = new Point();
 		try {
 			coordinates = Point.fromStrings(fields.get("x"), fields.get("y"));
@@ -75,6 +75,7 @@ public class Game {
 			return;
 		}
 		
+		// Check if orientation is ok
 		String orient = fields.get("orientation");
 		if(!(orient.equals("h") || orient.equals("v"))) {
 			AnswerUtils.sendError(player.getSession(), "Malformed Orientation.");
@@ -82,6 +83,7 @@ public class Game {
 		}
 		Orientation orientation = Orientation.fromString(orient);
 		
+		// Check ship type
 		ShipType type = ShipType.fromIdent(fields.get("shiptype"));
 		if(type == null) {
 			AnswerUtils.sendError(player.getSession(), "Unknown ShipType.");
@@ -122,7 +124,14 @@ public class Game {
 		boolean isOwner = (playerField == toPlayer);
 		String fieldType = (isOwner) ? "your_field" : "opponent_field";
 		
-		JsonElement field = f.getFieldAsJson(isOwner);
+		JsonElement field;
+		// Send the whole uncovered field, when game is over
+		if(this.state.equals(GameState.GAME_OVER)) {
+			field = f.getFieldAsJson(true);
+		} else {
+			field = f.getFieldAsJson(isOwner);
+		}
+		
 		AnswerUtils.sendPlayerField(sess, field, fieldType);
 	}
 	
@@ -274,8 +283,15 @@ public class Game {
 		
 		sendGameOver(player, "winner");
 		sendGameOver(getOtherPlayer(player), "loser");
+		
+		sendGameOverFieldupdate();
 	}
 	
+	private void sendGameOverFieldupdate() {
+		sendPlayerFieldUpdate(player1, player2);
+		sendPlayerFieldUpdate(player2, player1);
+	}
+
 	public void playerLeft(Player player) {
 		System.out.println("!! Player left - " + player.getSession().getId());
 		sendGameOver(getOtherPlayer(player), "player_left");

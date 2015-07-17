@@ -8,6 +8,7 @@ import java.util.Random;
 import main.AnswerUtils;
 import main.Callable;
 import main.SendLaterUtils;
+import model.Game.GameState;
 import model.Ship.Orientation;
 import model.Ship.ShipType;
 
@@ -37,7 +38,6 @@ public class AIPlayer implements Callable {
 		this.me = me;
 		
         this.fires = new boolean[10][10];
-        
         this.destroyedShips = new boolean[10][10];
         this.currentShip = new ArrayList<Point>();
 	}
@@ -151,10 +151,14 @@ public class AIPlayer implements Callable {
 		if(msg.equals("stats")) {
 		    calculateStatistics();
 		}
+		// Streaking can be enabled as long as no player has fired yet
 		if(msg.equals("streaking")) {
-			this.game.enableStreaking();
-			AnswerUtils.sendChatMessage(this.game.getOtherPlayer(this.me).getSession(), 
-					"Streaking-Spielmodus aktiviert!");
+			if(!this.game.getState().equals(GameState.PLAYER1_TURN) && 
+					!this.game.getState().equals(GameState.PLAYER1_TURN)) {
+				this.game.enableStreaking();
+				AnswerUtils.sendChatMessage(this.game.getOtherPlayer(this.me).getSession(), 
+						"Streaking-Spielmodus aktiviert!");
+			}
 		}
 	}
 	
