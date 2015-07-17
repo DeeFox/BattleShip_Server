@@ -33,6 +33,8 @@ public class Game {
 	}
 	
 	private GameState state;
+	
+	private boolean streakingMode = false;
 
 	public Game(Player p1, Player p2) {
 		state = GameState.BOTH_PLAYERS_PLACING_SHIPS;
@@ -288,13 +290,17 @@ public class Game {
 	}
 	
 	private void nextPlayerTurn(Player player, Ship target) {
-		if(target == null) {
+		if(!this.streakingMode || target == null) {
 			if(isPlayer1(player)) {
 				state = GameState.PLAYER2_TURN;
 			} else {
 				state = GameState.PLAYER1_TURN;
 			}
 		}
+	}
+	
+	public void enableStreaking() {
+		this.streakingMode = true;
 	}
 
 	public void sendChatMessage(Player player, HashMap<String, String> fields) {

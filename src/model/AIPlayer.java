@@ -151,6 +151,11 @@ public class AIPlayer implements Callable {
 		if(msg.equals("stats")) {
 		    calculateStatistics();
 		}
+		if(msg.equals("streaking")) {
+			this.game.enableStreaking();
+			AnswerUtils.sendChatMessage(this.game.getOtherPlayer(this.me).getSession(), 
+					"Streaking-Spielmodus aktiviert!");
+		}
 	}
 	
 	private void calculateStatistics() {
