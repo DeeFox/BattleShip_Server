@@ -1,6 +1,5 @@
 #BattleShip Server Protokoll
 Version 1.1, Stand 27.06.2015 23:00  
-Kontakt bei Rückfragen und Fehlern: `nils.sonemann@gmail.com` oder `jp.lange3@gmail.com`
  
 Die Protokollbeschreibung für das Projekt BattleShip umfasst eine Aufschlüsselung des typischen Ablaufes der Kommunikation zwischen Client und Server sowie eine genaue Beschreibung aller JSON-Datenpakete.  
 Die Kommunikation läuft Eventbasiert ab. Das bedeutet, dass es keine direkten Antworten auf Datenpakete gibt, sondern nach einer Aktion ein neues Event ausgelöst wird, auf das gesondert reagiert werden muss.  
